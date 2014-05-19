@@ -1,4 +1,10 @@
-
+<?php
+/**
+ * $from string
+ * $to string
+ * $idString string
+ */
+?>
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -11,41 +17,6 @@
     <!-- Le styles -->
     {{ HTML::style('assets/css/bootstrap.css') }}
 
-    <style type="text/css">
-        body {
-            padding-top: 40px;
-            padding-bottom: 40px;
-            background-color: #f5f5f5;
-        }
-
-        .form-signin {
-            max-width: 300px;
-            padding: 19px 29px 29px;
-            margin: 0 auto 20px;
-            background-color: #fff;
-            border: 1px solid #e5e5e5;
-            -webkit-border-radius: 5px;
-            -moz-border-radius: 5px;
-            border-radius: 5px;
-            -webkit-box-shadow: 0 1px 2px rgba(0,0,0,.05);
-            -moz-box-shadow: 0 1px 2px rgba(0,0,0,.05);
-            box-shadow: 0 1px 2px rgba(0,0,0,.05);
-        }
-        .form-signin .form-signin-heading,
-        .form-signin .checkbox {
-            margin-bottom: 10px;
-        }
-        .form-signin input[type="text"],
-        .form-signin input[type="password"] {
-            font-size: 16px;
-            height: auto;
-            margin-bottom: 15px;
-            padding: 7px 9px;
-        }
-
-    </style>
-    {{ HTML::style('assets/css/bootstrap-responsive.css') }}
-
     <!-- HTML5 shim, for IE6-8 support of HTML5 elements -->
     <!--[if lt IE 9]>
     <script src="../assets/js/html5shiv.js"></script>
@@ -54,37 +25,47 @@
 </head>
 
 <body>
-
 <div class="container">
+    <?php
+        if ( $errorMsg ) {?>
+            <h3 style="color: red;" class="form-signin-heading"><?=$errorMsg?></h3>
+        <?}
+    ?>
+    <form class="form" method="POST" action="" width="300px">
+        <h3 class="form-signin-heading">Что считать будем?</h3>
 
-    <form class="form-signin">
-        <h2 class="form-signin-heading">Please sign in</h2>
-        <input type="text" class="input-block-level" placeholder="Email address">
-        <input type="password" class="input-block-level" placeholder="Password">
-        <label class="checkbox">
-            <input type="checkbox" value="remember-me"> Remember me
-        </label>
-        <button class="btn btn-large btn-primary" type="submit">Sign in</button>
+        <select class="form-control" width="200px" name="type" >
+            <option value="repost">Репосты</option>
+            <option value="likes">Лайки</option>
+            <option value="borderComments">Комментаторы обсуждения</option>
+        </select>
+        <br>
+        <label for="name">Ссылка на источник</label>
+        <input type="text" name="idString" class="form-control"  value="{{ $idString }}">
+        <br>
+        <br>
+        <input class="btn btn-large btn-primary" type="submit" >
     </form>
+
+    <?php if ( !is_null($resultIds)) { ?>
+        <table>
+            <thead>
+                <tr><td>Юзеры</td></td></tr>
+            </thead>
+            <tbody>
+                <?php foreach( $resultIds as $id) { ?>
+                    <tr><td><?= $id ?></td></tr>
+                <?php } ?>
+            </tbody>
+        </table>
+    <?php } ?>
 
 </div> <!-- /container -->
 
 <!-- Le javascript
 ================================================== -->
 <!-- Placed at the end of the document so the pages load faster -->
-<script src="../assets/js/jquery.js"></script>
-<script src="../assets/js/bootstrap-transition.js"></script>
-<script src="../assets/js/bootstrap-alert.js"></script>
-<script src="../assets/js/bootstrap-modal.js"></script>
-<script src="../assets/js/bootstrap-dropdown.js"></script>
-<script src="../assets/js/bootstrap-scrollspy.js"></script>
-<script src="../assets/js/bootstrap-tab.js"></script>
-<script src="../assets/js/bootstrap-tooltip.js"></script>
-<script src="../assets/js/bootstrap-popover.js"></script>
-<script src="../assets/js/bootstrap-button.js"></script>
-<script src="../assets/js/bootstrap-collapse.js"></script>
-<script src="../assets/js/bootstrap-carousel.js"></script>
-<script src="../assets/js/bootstrap-typeahead.js"></script>
+
 
 </body>
 </html>

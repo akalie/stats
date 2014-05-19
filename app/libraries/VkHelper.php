@@ -84,7 +84,7 @@
                 curl_setopt($ch, CURLOPT_POSTFIELDS, http_build_query($arr_of_fields));
 
             } else return false;
-
+//            echo $url . '?' . http_build_query($arr_of_fields);
             $result = curl_exec($ch);
             if (curl_errno($ch)) {
                 echo "<br>error in curl: ". curl_error($ch) ."<br>";
