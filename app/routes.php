@@ -11,7 +11,8 @@
 |
 */
 
-Route::get('/', function()
-{
-	return View::make('hello');
-});
+
+Route::get('/', array('uses' => 'IndexController@showIndex'));
+
+Route::match(['GET', 'POST'],'/form', array('uses' => 'IndexController@showForm'));
+
