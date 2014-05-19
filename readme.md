@@ -1,24 +1,33 @@
-## Laravel PHP Framework
+## как поставить все это дело
+  Надо поставить:
+  - apt-get install php5-json
+  - apt-get install php5-mcrypt
+  
+  Nginx-config:
+    server {
+      listen  80;
+      server_name statlaravel.local;
+      root /home/akalie/work/stats/stats/public;
+  
+      index index.php index.html index.htm;
+  
+      rewrite ^/(.*)/$ /$1 permanent;
+  
+      location / {
+          try_files $uri $uri/ /index.php;
+      }
+  
+      location ~ \.php$ {
+          try_files $uri =404;
+          fastcgi_pass unix:/var/run/php5-fpm.sock;
+          fastcgi_param SCRIPT_FILENAME $document_root$fastcgi_script_name;
+          include fastcgi_params;
+      }
+  }
 
-[![Build Status](https://img.shields.io/travis/laravel/framework.svg)](https://travis-ci.org/laravel/framework)
-[![Total Downloads](https://img.shields.io/packagist/dt/laravel/framework.svg)](https://packagist.org/packages/laravel/framework)
-[![Latest Version](https://img.shields.io/github/tag/laravel/framework.svg)](https://github.com/laravel/framework/releases)
-[![Dependency Status](https://www.versioneye.com/php/laravel:framework/badge.svg)](https://www.versioneye.com/php/laravel:framework)
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable, creative experience to be truly fulfilling. Laravel attempts to take the pain out of development by easing common tasks used in the majority of web projects, such as authentication, routing, sessions, and caching.
-
-Laravel aims to make the development process a pleasing one for the developer without sacrificing application functionality. Happy developers make the best code. To this end, we've attempted to combine the very best of what we have seen in other web frameworks, including frameworks implemented in other languages, such as Ruby on Rails, ASP.NET MVC, and Sinatra.
-
-Laravel is accessible, yet powerful, providing powerful tools needed for large, robust applications. A superb inversion of control container, expressive migration system, and tightly integrated unit testing support give you the tools you need to build any application with which you are tasked.
-
-## Official Documentation
-
-Documentation for the entire framework can be found on the [Laravel website](http://laravel.com/docs).
-
-### Contributing To Laravel
-
-**All issues and pull requests should be filed on the [laravel/framework](http://github.com/laravel/framework) repository.**
-
-### License
-
-The Laravel framework is open-sourced software licensed under the [MIT license](http://opensource.org/licenses/MIT)
+  после клонирования репозитория, в папке проекта
+  curl -sS https://getcomposer.org/installer | php
+  php composer.phar install
+  sudo chmod 777 app/storage -R
+  
