@@ -29,7 +29,7 @@
     <?php
         if ( $errorMsg ) {?>
             <h3 style="color: red;" class="form-signin-heading"><?=$errorMsg?></h3>
-        <?}
+        <?php }
     ?>
     <form class="form" method="POST" action="" width="300px">
         <h3 class="form-signin-heading">Что считать будем?</h3>
