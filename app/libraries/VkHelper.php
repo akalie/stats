@@ -114,8 +114,7 @@
             $useragent = $all_useragents[ array_rand( $all_useragents )];
 
             $i = 0;
-            for( $i = 0; $i < count( $urls ); $i = $i + $threads )
-            {
+            for( $i = 0; $i < count( $urls ); $i = $i + $threads ) {
                 $urls_pack[] = array_slice( $urls, $i, $threads );
             }
             foreach( $urls_pack as $pack )
@@ -182,8 +181,7 @@
             return $res;
         }
 
-        public static function vk_authorize( $login = null, $pass = null )
-        {
+        public static function vk_authorize( $login = null, $pass = null ) {
             if( !$login) {
                 shuffle( self::$serv_bots);
                 $login = self::$serv_bots[0]['login'];
@@ -217,6 +215,32 @@
         }
 
         public static function getBoards($publicId, $lastBoardId) {
-            $boards = self::api_request('board.getTopics', ['owner_id' => $publicId, 'count' => 100, 'offset' => $currentOffset, 'v' => 5.21]);
+            $params = [
+                'access_token' =>  'e15b39325d5f55f74048b31d7c35b22801f055d37a913459a052fc6e8177c600274bfe18fe44d7041bce4',
+                'group_id' => $publicId,
+                'count' => 100,
+                'order' => 2,
+                'v' => 5.21
+            ];
+            $count = 100;
+            $offset = 0;
+
+            while ($count == 100 ) {
+                $params['offset'] = $offset;
+                $boards = self::api_request('board.getTopics', $params);
+                $count = count($boards->items);
+                foreach( $boards->items as $board) {
+                    if ($lastBoardId && $board->id == $lastBoardId ) {
+                        return $boards;
+                    }
+                }
+                if (!$lastBoardId) {
+                    return $boards;
+                }
+                $offset += 100;
+            }
+
+            return $boards;
+
         }
     }

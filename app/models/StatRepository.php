@@ -49,4 +49,9 @@ class StatRepository  {
         DB::table($tableName)->insert($params);
         DB::commit();
     }
+
+    public static function GetAllIds($type, $publicId) {
+        $table = self::STAT_TABLE_PUBLIC_PREFIX . (int) $publicId . '_' . $type;
+        return DB::table($table)->distinct()->get();
+    }
 } 

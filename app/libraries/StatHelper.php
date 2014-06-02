@@ -2,7 +2,7 @@
     class   StatHelper {
         public static function getBoardCommentersIds($boardId) {
             $params = [];
-            $result['users'] = [];
+            $result = [];
 
             list($params['group_id'], $params['topic_id']) = explode('_', $boardId);
             $params['count'] = 100;
@@ -13,14 +13,15 @@
             while($i++ < 225) {
                 $params['offset'] = $offset;
                 $response = VkHelper::api_request('board.getComments', $params);
-                $result['users'] = array_merge($result['users'], array_map(function ($item) {return  $item->from_id;}, $response->items));
+                sleep(VkHelper::PAUSE * 2);
+                $result = array_merge($result, array_map(function ($item) {return  $item->from_id;}, $response->items));
                 if(!count($response->items)) {
                     break;
                 }
                 $offset += 100;
             }
 
-            return array_unique($result['users']);
+            return array_unique($result);
         }
 
         public static function getPostLikersIds($postId) {

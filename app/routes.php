@@ -11,6 +11,8 @@
 |
 */
 
+Route::get('/daemons/board-parser', ['uses' => 'DaemonsController@ParserBoardsChunk']);
+
 Route::get('/daemons/posts-parser', ['uses' => 'DaemonsController@ParsePostChunk']);
 
 Route::get('/', ['uses' => 'IndexController@showIndex']);
