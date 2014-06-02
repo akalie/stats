@@ -31,6 +31,7 @@
                 return array();
             if ( isset( $res->error ) ) {
                 $Ex = new vkException('Error : ' . $res->error->error_msg . ' on params ' . json_encode( $request_params ) );
+
                 if( isset($res->error->captcha_sid)) {
                     $Ex->captchaSig = $res->error->captcha_sid;
                     $Ex->captchaImg = $res->error->captcha_img;
@@ -216,7 +217,7 @@
 
         public static function getBoards($publicId, $lastBoardId) {
             $params = [
-                'access_token' =>  'e15b39325d5f55f74048b31d7c35b22801f055d37a913459a052fc6e8177c600274bfe18fe44d7041bce4',
+                'access_token' =>  '788acb49f87cbbecafe19a97ead0be698c15fa787bee067bef3df26e0059d86a5f4fe5609826cbe00089b',
                 'group_id' => $publicId,
                 'count' => 100,
                 'order' => 2,

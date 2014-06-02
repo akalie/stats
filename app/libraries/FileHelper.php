@@ -24,4 +24,9 @@ class FileHelper {
         fclose($df);
         return true;
     }
+
+    public static function getCsvPath($publicId, $type, $fullPath = true ) {
+        $preable = $fullPath ? public_path() . '/csv/' : '' ;
+        return  $preable . $publicId . '_' . $type. '.csv';
+    }
 } 

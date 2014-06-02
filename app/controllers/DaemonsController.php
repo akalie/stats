@@ -41,6 +41,7 @@ class DaemonsController extends BaseController {
         } catch(Exception $e) {
             //todo логирование
             QueueRepository::unlockQueue($queue->id);
+            Log::error($e->getMessage() . 'on ' . __FUNCTION__ . var_export($queue));
             print_r($e->getMessage());
             die('не прокатило');
         }
@@ -91,8 +92,7 @@ class DaemonsController extends BaseController {
         } catch(Exception $e) {
             //todo логирование
             QueueRepository::unlockQueue($queue->id);
-
-            print_r($e->getMessage());
+            Log::error($e->getMessage() . 'on ' . __FUNCTION__ . var_export($queue));
             die('не прокатило');
         }
         if (count($boards->items) < 100) {
@@ -104,5 +104,4 @@ class DaemonsController extends BaseController {
         }
         QueueRepository::unlockQueue($queue->id);
     }
-
 }

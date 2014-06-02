@@ -1,6 +1,6 @@
 <?php
 
-class IndexController extends BaseController {
+class InitController extends BaseController {
 
 	public function initAll()
 	{

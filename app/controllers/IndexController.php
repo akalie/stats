@@ -26,64 +26,66 @@ class IndexController extends BaseController {
 
         }
         $queues = QueueRepository::getAllQueues();
-
-        foreach( $queues as $queue) {
-            $externalIds[] = $queue->public_id;
-        }
-        $publicInfo = VkHelper::api_request('groups.getById', ['group_ids' => implode(',', $externalIds), 'v '=> 5.21]);
-
-        $publicInfoById = [];
-        foreach($publicInfo as $public) {
-            $publicInfoById[$public->gid] = $public;
-        }
-        unset($publicInfo);
-
         $queuesInfo = [];
-        foreach( $queues as $queue) {
-            $postLikesPath = FileHelper::getCsvPath($queue->public_id, StatRepository::POST_LIKES);
-            if (is_file($postLikesPath)) {
-                $postLikesPath = basename($postLikesPath) ;
-            } else {
-                $postLikesPath = null;
+        if (!empty($queues)) {
+            foreach( $queues as $queue) {
+                $externalIds[] = $queue->public_id;
             }
+            $publicInfo = VkHelper::api_request('groups.getById', ['group_ids' => implode(',', $externalIds), 'v '=> 5.21]);
 
-            $postRepostsPath    = FileHelper::getCsvPath($queue->public_id, StatRepository::POST_REPOSTS);
-            if (is_file($postRepostsPath)) {
-                $postRepostsPath = basename($postRepostsPath) ;
-            } else {
-                $postRepostsPath = null;
+            $publicInfoById = [];
+            foreach($publicInfo as $public) {
+                $publicInfoById[$public->gid] = $public;
             }
+            unset($publicInfo);
 
-            $boardReplsPath     = FileHelper::getCsvPath($queue->public_id, StatRepository::BOARD_REPLS);
-            if (is_file($boardReplsPath)) {
-                $boardReplsPath = basename($boardReplsPath) ;
-            } else {
-                $boardReplsPath = null;
+
+            foreach( $queues as $queue) {
+                $postLikesPath = FileHelper::getCsvPath($queue->public_id, StatRepository::POST_LIKES);
+                if (is_file($postLikesPath)) {
+                    $postLikesPath = basename($postLikesPath) ;
+                } else {
+                    $postLikesPath = null;
+                }
+
+                $postRepostsPath    = FileHelper::getCsvPath($queue->public_id, StatRepository::POST_REPOSTS);
+                if (is_file($postRepostsPath)) {
+                    $postRepostsPath = basename($postRepostsPath) ;
+                } else {
+                    $postRepostsPath = null;
+                }
+
+                $boardReplsPath     = FileHelper::getCsvPath($queue->public_id, StatRepository::BOARD_REPLS);
+                if (is_file($boardReplsPath)) {
+                    $boardReplsPath = basename($boardReplsPath) ;
+                } else {
+                    $boardReplsPath = null;
+                }
+
+                $albumLikesPath     = FileHelper::getCsvPath($queue->public_id, StatRepository::ALBUM_LIKES);
+                if (is_file($albumLikesPath)) {
+                    $albumLikesPath = basename($albumLikesPath) ;
+                } else {
+                    $albumLikesPath = null;
+                }
+
+                $albumRepostsPath   = FileHelper::getCsvPath($queue->public_id, StatRepository::ALBUM_REPOSTS);
+                if (is_file($albumRepostsPath)) {
+                    $albumRepostsPath = basename($albumRepostsPath) . '.csv';
+                } else {
+                    $albumRepostsPath = null;
+                }
+
+                $queuesInfo[$queue->public_id] = [
+                    'title'         =>  $publicInfoById[$queue->public_id]->name,
+                    'postLikes'     =>  $postLikesPath,
+                    'postReposts'   =>  $postRepostsPath,
+                    'boardRepls'    =>  $boardReplsPath,
+                    'albumLikes'    =>  $albumLikesPath,
+                    'albumReposts'  =>  $albumRepostsPath,
+                ];
+
             }
-
-            $albumLikesPath     = FileHelper::getCsvPath($queue->public_id, StatRepository::ALBUM_LIKES);
-            if (is_file($albumLikesPath)) {
-                $albumLikesPath = basename($albumLikesPath) ;
-            } else {
-                $albumLikesPath = null;
-            }
-
-            $albumRepostsPath   = FileHelper::getCsvPath($queue->public_id, StatRepository::ALBUM_REPOSTS);
-            if (is_file($albumRepostsPath)) {
-                $albumRepostsPath = basename($albumRepostsPath) . '.csv';
-            } else {
-                $albumRepostsPath = null;
-            }
-
-            $queuesInfo[$queue->public_id] = [
-                'title'         =>  $publicInfoById[$queue->public_id]->name,
-                'postLikes'     =>  $postLikesPath,
-                'postReposts'   =>  $postRepostsPath,
-                'boardRepls'    =>  $boardReplsPath,
-                'albumLikes'    =>  $albumLikesPath,
-                'albumReposts'  =>  $albumRepostsPath,
-            ];
-
         }
 
         return View::make('statIndex')

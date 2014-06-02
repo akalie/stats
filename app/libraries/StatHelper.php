@@ -6,7 +6,7 @@
 
             list($params['group_id'], $params['topic_id']) = explode('_', $boardId);
             $params['count'] = 100;
-            $params['access_token'] = 'e15b39325d5f55f74048b31d7c35b22801f055d37a913459a052fc6e8177c600274bfe18fe44d7041bce4';
+            $params['access_token'] = '788acb49f87cbbecafe19a97ead0be698c15fa787bee067bef3df26e0059d86a5f4fe5609826cbe00089b';
             $params['v'] = '5.21';
             $offset = 0;
             $i = 0;
