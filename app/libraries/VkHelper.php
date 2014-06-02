@@ -215,5 +215,8 @@
                 'posts'  => $posts->items
             ];
         }
+
+        public static function getBoards($publicId, $lastBoardId) {
+            $boards = self::api_request('board.getTopics', ['owner_id' => $publicId, 'count' => 100, 'offset' => $currentOffset, 'v' => 5.21]);
+        }
     }
-?>

@@ -50,5 +50,38 @@ class DaemonsController extends BaseController {
         QueueRepository::unlockQueue($queue->id);
     }
 
+    public function ParserBoardsChunk() {
+        $queue = QueueRepository::getQueue(QueueRepository::QT_BOARDS);
+        if (!$queue) {
+            die('nothing to process');
+        }
+
+        try {
+            $wallPosts = VkHelper::getWallPage('-' . $queue->public_id, $page);
+            $currentPostId = null;
+            foreach ( $wallPosts['posts'] as $post) {
+                if ($post->id <= $stopId) {
+                    continue;
+                }
+                if (!$currentPostId) {
+                    $currentPostId = $post->id;
+                }
+                $likersIds = StatHelper::getPostLikersIds('-' . $queue->public_id . '_' . $post->id);
+                if (count($likersIds)) {
+                    StatRepository::saveUserIds(StatRepository::POST_LIKES, $queue->public_id, $likersIds);
+                }
+                $reposterIds = StatHelper::getPostRepostersIds('-' . $queue->public_id . '_' . $post->id);
+
+                if (count($reposterIds)) {
+                    StatRepository::saveUserIds(StatRepository::POST_REPOSTS, $queue->public_id, $reposterIds);
+                }
+            }
+        } catch(Exception $e) {
+            //todo логирование
+            QueueRepository::unlockQueue($queue->id);
+            print_r($e->getMessage());
+            die('не прокатило');
+        }
+    }
 
 }
