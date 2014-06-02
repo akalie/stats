@@ -1,9 +1,12 @@
+#stat
 ## как поставить все это дело
+
   Надо поставить:
-  - apt-get install php5-json
-  - apt-get install php5-mcrypt
+  * apt-get install php5-json
+  * apt-get install php5-mcrypt
   
   Nginx-config:
+  ```
         server {
             listen  80;
             server_name statlaravel.local;
@@ -24,15 +27,20 @@
                 include fastcgi_params;
             }
         }
+  ```
 
+  после клонирования репозитория, в папке проекта:
+  * curl -sS https://getcomposer.org/installer | php
+  * php composer.phar install
+  * sudo chmod 777 app/storage -R
+  * sudo chmod 777 public/csv -R
 
-  после клонирования репозитория, в папке проекта
-  curl -sS https://getcomposer.org/installer | php
-  php composer.phar install
-  sudo chmod 777 app/storage -R
-  sudo chmod 777 public/csv -R
-
+  ## Настройка демонов
   crontab
-
+  ```
     1-59/2     *       *       *       *       php /home/akalie/work/stats/stats/invoke.php  statlaravel.local /daemons/board-parser > /dev/null
     1-59/2     *       *       *       *       php /home/akalie/work/stats/stats/invoke.php  statlaravel.local /daemons/posts-parser > /dev/null
+  ```
+
+  ## Апп для контакта
+  * 4394678
