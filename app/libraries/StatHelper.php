@@ -1,6 +1,6 @@
 <?php
     class   StatHelper {
-        public static function getBorderCommentersIds($boardId) {
+        public static function getBoardCommentersIds($boardId) {
             $params = [];
             $result['users'] = [];
 
@@ -25,7 +25,7 @@
 
         public static function getPostLikersIds($postId) {
             $params = [];
-            $result['users'] = [];
+            $result = [];
 
             list($params['owner_id'], $params['item_id']) = explode('_', $postId);
             $params['count'] = 1000;
@@ -35,19 +35,19 @@
             $params['v'] = '5.21';
             $offset = 0;
             $i = 0;
-            while($i++ < 225) {
+            while ($i++ < 225) {
                 $params['offset'] = $offset;
                 $response = VkHelper::api_request('likes.getList', $params);
-                $result['users'] = array_merge($result['users'],  $response->items);
+                $result = array_merge($result,  $response->items);
                 #$result['groups'] = array_map(function ($group) { return $group->id; }, $response->groups);
-                if(!count($response->items)) {
+                if (!count($response->items)) {
                     break;
                 }
                 $offset += 1000;
 
             }
-            return array_unique($result['users']);
 
+            return array_unique($result);
         }
 
         public static function getPostRepostersIds($postId) {

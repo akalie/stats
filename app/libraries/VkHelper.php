@@ -6,31 +6,11 @@
     };
     class   VkHelper {
 
-        const PERM_NOTIFY = 1;             //Пользователь разрешил отправлять ему уведомления.
-        const PERM_FRIENDS = 2;            //Доступ к друзьям.
-        const PERM_PHOTO = 4;              //Доступ к фотографиям.
-        const PERM_AUDIO = 8;              //Доступ к аудиозаписям.
-        const PERM_VIDEO = 16;             //Доступ к видеозаписям.
-        const PERM_APPS = 32;              //Доступ к предложениям.
-        const PERM_QUESTIONS = 64;         //Доступ к вопросам.
-        const PERM_WIKI = 128;             //Доступ к wiki-страницам.
-        const PERM_LEFTMENU = 256;         //Добавление ссылки на приложение в меню слева.
-        const PERM_QUICKPUBLISH = 512;     //Добавление ссылки на приложение для быстрой публикации на стенах пользователей.
-        const PERM_STATUS = 1024;          //Доступ к статусам пользователя.
-        const PERM_NOTES = 2048;           //Доступ заметкам пользователя.
-        const PERM_MSG_EXTENDED = 4096;    //(для Desktop-приложений) Доступ к расширенным методам работы с сообщениями.
-        const PERM_WALL = 8192;            //Доступ к обычным и расширенным методам работы со стеной.
-        const PERM_ADS = 32768;            //Доступ к функциям для работы с рекламным кабинетом.
-        const PERM_OFFLINE = 65536;        //Оффлайн-доступ
-        const PERM_DOCS = 131072;          //Доступ к документам пользователя.
-        const PERM_GROUPS = 262144;        //Доступ к группам пользователя.
-        const PERM_NOTIFY_ANSWER = 524288; //Доступ к оповещениям об ответах пользователю.
-        const PERM_GROUP_STATS = 1048576;  //Доступ к статистике групп и приложений пользователя, администратором которых он является.
-
         const PAUSE   = 0.5;
 
         public static $tries = 0;
 
+        public static $lastCount = 0;
         public static  $open_methods = array(
             'wall.get'          => true,
             'groups.getById'    => true,
@@ -41,8 +21,12 @@
         public static function api_request( $method, $request_params )
         {
             $url = VK_API_URL . $method;
+            echo $url . '?' . http_build_query($request_params) .'<br>';
             $a = VkHelper::qurl_request( $url, $request_params );
-            $res = json_decode(  $a );
+            $res = json_decode(  $a, true );
+
+            self::$lastCount = isset($res['response']['count']) ? $res['response']['count'] : 0;
+            $res = json_decode($a);
             if( !$res )
                 return array();
             if ( isset( $res->error ) ) {
@@ -52,7 +36,6 @@
                     $Ex->captchaImg = $res->error->captcha_img;
                 }
                 throw $Ex;
-
             }
             return $res->response;
         }
@@ -174,7 +157,7 @@
             return true;
         }
 
-           public static function connect( $link, $cookie=null, $post=null, $includeHeader = true)
+        public static function connect( $link, $cookie=null, $post=null, $includeHeader = true)
         {
             $ch = curl_init();
 
@@ -216,21 +199,21 @@
             return false;
         }
 
-        public static function send_alert( $message, $reciever_vk_ids )
-        {
-            if( !is_array( $reciever_vk_ids )) {
-                $reciever_vk_ids = array( $reciever_vk_ids );
-            }
-            foreach( $reciever_vk_ids as $vk_id) {
-                $params = array(
-                    'uid'           =>   $vk_id,
-                    'message'       =>   $message . ' ' . md5(time()) ,
-                    'access_token'  =>   self::ALERT_TOKEN,
-                );
-                VkHelper::api_request( 'messages.send', $params );
-                sleep( self::PAUSE );
-            }
+        /**
+         * @param int $publicId
+         * @param int $page номер страницы
+         * @return array
+         */
+        public static function getWallPage($publicId, $page) {
+            $res = self::api_request('wall.get', ['owner_id' => $publicId, 'count' => 1, 'v' => 5.21]);
+            $maxPage = ceil(self::$lastCount / 100);
+            $currentOffset = self::$lastCount - $page * 100;
+            if ($currentOffset < 0) $currentOffset = 0;
+            $posts = self::api_request('wall.get', ['owner_id' => $publicId, 'count' => 100, 'offset' => $currentOffset, 'v' => 5.21]);
+            return [
+                'isLast' => !($maxPage > $page),
+                'posts'  => $posts->items
+            ];
         }
-
     }
 ?>

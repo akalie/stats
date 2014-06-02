@@ -11,8 +11,9 @@
 |
 */
 
+Route::get('/daemons/posts-parser', ['uses' => 'DaemonsController@ParsePostChunk']);
 
-Route::get('/', array('uses' => 'IndexController@showIndex'));
+Route::get('/', ['uses' => 'IndexController@showIndex']);
 
 Route::match(['GET', 'POST'],'/form', array('uses' => 'IndexController@showForm'));
 

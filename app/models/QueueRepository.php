@@ -23,28 +23,25 @@ class QueueRepository {
         $commonParams = [
             'percent_done'  =>  0,
             'status_id'     =>  1,
-            'created_at'    =>  $now->format('r')
+            'created_at'    =>  $now->format('r'),
+            'public_id'     =>  $publicId
         ];
         $parentQueueId = DB::table('queues')->insertGetId(
-            [
-                'type'      =>  self::QT_PUBLIC,
-                'public_id' =>  $publicId
-            ]
-            + $commonParams
+            ['type'  =>  self::QT_PUBLIC] + $commonParams
         );
 
         $commonParams['parent_queue_id'] = $parentQueueId;
 
         DB::table('queues')->insertGetId(
-            ['type'      =>  self::QT_POSTS] + $commonParams
+            ['type'  =>  self::QT_POSTS] + $commonParams
         );
 
          DB::table('queues')->insertGetId(
-            ['type'      =>  self::QT_ALBUMS] + $commonParams
+            ['type'  =>  self::QT_ALBUMS] + $commonParams
         );
 
          DB::table('queues')->insertGetId(
-            ['type'      =>  self::QT_BOARDS] + $commonParams
+            ['type'  =>  self::QT_BOARDS] + $commonParams
         );
         return true;
     }
@@ -71,7 +68,7 @@ class QueueRepository {
     }
 
     /** лочим очередь
-     * @param $queueId
+     * @param int $queueId
      * @return boolean
      */
     public static function lockQueue($queueId) {
@@ -82,7 +79,7 @@ class QueueRepository {
     }
 
     /** разлочим очередь
-     * @param $queueId
+     * @param int $queueId
      * @return boolean
      */
     public static function unlockQueue($queueId) {
@@ -91,4 +88,29 @@ class QueueRepository {
                         ->update(['locked_at' => null]);
     }
 
+    /** обновляем последний обработанный id
+     * @param int $queueId
+     * @param string $processed
+     * @return boolean
+     */
+    public static function updateProcessed($queueId, $processed) {
+        return (bool) DB::table('queues')
+                        ->where('id', $queueId)
+                        ->update(['last_processed_id' => $processed]);
+    }
+
+    /** обновляем статус
+     * @param int $queueId
+     * @param $status
+     * @return boolean
+     */
+    public static function updateQueueStatus($queueId, $status) {
+        return (bool) DB::table('queues')
+                        ->where('id', $queueId)
+                        ->update(['status_id' => $status]);
+    }
+
+    public static function getAllQueues() {
+        return DB::table('queues')->where('type', self::QT_PUBLIC)->get();
+    }
 } 
