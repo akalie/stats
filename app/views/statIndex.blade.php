@@ -3,8 +3,10 @@
  * $from string
  * $to string
  * $idString string
- * $publics array
+ * $queuesInfo array
  */
+
+
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -55,14 +57,21 @@
         </table>
     <?php } ?>
 
-    <?php if ( !is_null($publics)) {  ?>
+    <?php if ( !is_null($queuesInfo)) {  ?>
     <table сlass="table">
         <thead>
-        <tr><td>Паблик</td></td></tr>
+        <tr><td>Паблик</td><td>Лайки постов</td>Репосты постов</td><td>Обсуждения</td><td>Лайки альбомов</td><td>репосты альбомов</td></tr>
         </thead>
         <tbody>
-        <?php  foreach( $publics as $public) { ?>
-            <tr><td><?= $public->public_id ?></td></tr>
+        <?php  foreach( $queuesInfo as $public) { ?>
+            <tr>
+                <td><?= $public['title'] ?></td>
+                <td><?= $public['postLikes'] ? link_to('download/' . $public['postLikes'], 'скачать') : 'В процессе' ?></td>
+                <td><?= $public['postReposts'] ? link_to('download/' . $public['postReposts'], 'скачать') : 'В процессе' ?></td>
+                <td><?= $public['boardRepls'] ? link_to('download/' . $public['boardRepls'], 'скачать') : 'В процессе' ?></td>
+                <td><?= $public['albumLikes'] ? link_to('download/' . $public['albumLikes'], 'скачать') : 'В процессе' ?></td>
+                <td><?= $public['albumReposts'] ? link_to('download/' . $public['albumReposts'], 'скачать') : 'В процессе' ?></td>
+            </tr>
     <?php } ?>
         </tbody>
     </table>

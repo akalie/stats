@@ -17,5 +17,13 @@ Route::get('/daemons/posts-parser', ['uses' => 'DaemonsController@ParsePostChunk
 
 Route::get('/', ['uses' => 'IndexController@showIndex']);
 
-Route::match(['GET', 'POST'],'/form', array('uses' => 'IndexController@showForm'));
+Route::match(['GET', 'POST'], '/form', array('uses' => 'IndexController@showForm'));
 
+Route::get('/download/{filename}', function($filename = 'qq') {
+    $fullPath = public_path() . '/csv/' . $filename;
+    if( is_file($fullPath) ) {
+        return Response::download($fullPath);
+    } else {
+        return 'File not exists';
+    }
+});

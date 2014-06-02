@@ -21,7 +21,7 @@
         public static function api_request( $method, $request_params )
         {
             $url = VK_API_URL . $method;
-            echo $url . '?' . http_build_query($request_params) .'<br>';
+//            echo $url . '?' . http_build_query($request_params) .'<br>';
             $a = VkHelper::qurl_request( $url, $request_params );
             $res = json_decode(  $a, true );
 

@@ -48,13 +48,13 @@ class DaemonsController extends BaseController {
             //finished
             QueueRepository::updateQueueStatus($queue->id, 2);
             $allIds =  StatRepository::GetAllIds(StatRepository::POST_LIKES, $queue->public_id);
-            $filename = public_path() . '/csv/' . $queue->public_id . '_' . StatRepository::POST_LIKES . '.csv';
+            $filename = FileHelper::getCsvPath($queue->public_id, StatRepository::POST_LIKES );
             FileHelper::array2csv($allIds, $filename);
 
             unset($allIds);
 
             $allIds =  StatRepository::GetAllIds(StatRepository::POST_REPOSTS, $queue->public_id);
-            $filename = public_path() . '/csv/' . $queue->public_id . '_' . StatRepository::POST_REPOSTS . '.csv';
+            $filename = FileHelper::getCsvPath($queue->public_id, StatRepository::POST_REPOSTS );
             FileHelper::array2csv($allIds, $filename);
             unset($allIds);
         } else {
@@ -98,7 +98,7 @@ class DaemonsController extends BaseController {
         if (count($boards->items) < 100) {
             QueueRepository::updateQueueStatus($queue->id, 2);
             $allIds =  StatRepository::GetAllIds(StatRepository::BOARD_REPLS, $queue->public_id);
-            $filename = public_path() . '/csv/' . $queue->public_id . '_' . StatRepository::BOARD_REPLS . '.csv';
+            $filename = FileHelper::getCsvPath($queue->public_id, StatRepository::BOARD_REPLS);
             FileHelper::array2csv($allIds, $filename);
             unset($allIds);
         }
