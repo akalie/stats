@@ -15,6 +15,8 @@ Route::get('/daemons/board-parser', ['uses' => 'DaemonsController@ParserBoardsCh
 
 Route::get('/daemons/posts-parser', ['uses' => 'DaemonsController@ParsePostChunk']);
 
+Route::get('/daemons/csv-parser', ['uses' => 'DaemonsController@checkCSV']);
+
 Route::get('/', ['uses' => 'IndexController@showIndex']);
 
 Route::match(['GET', 'POST'], '/form', array('uses' => 'IndexController@showForm'));

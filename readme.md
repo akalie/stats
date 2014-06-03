@@ -40,6 +40,7 @@
   ```
     1-59/2     *       *       *       *       php /home/akalie/work/stats/stats/invoke.php  statlaravel.local /daemons/board-parser > /dev/null
     1-59/2     *       *       *       *       php /home/akalie/work/stats/stats/invoke.php  statlaravel.local /daemons/posts-parser > /dev/null
+    1-59/5     *       *       *       *       php /home/akalie/work/stats/stats/invoke.php  statlaravel.local /daemons/csv-parser > /dev/null
   ```
 
   ## Апп для контакта

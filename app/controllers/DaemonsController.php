@@ -2,7 +2,9 @@
 
 class DaemonsController extends BaseController {
 
-
+    /**
+     * контроллер парсит просты на лайки и репосты
+     */
     public function ParsePostChunk() {
         set_time_limit(240);
 
@@ -41,7 +43,7 @@ class DaemonsController extends BaseController {
         } catch(Exception $e) {
             //todo логирование
             QueueRepository::unlockQueue($queue->id);
-            Log::error($e->getMessage() . 'on ' . __FUNCTION__ . var_export($queue));
+            Log::error($e->getMessage() . 'on ' . __FUNCTION__ . var_export($queue, 1));
             print_r($e->getMessage());
             die('не прокатило');
         }
@@ -64,6 +66,9 @@ class DaemonsController extends BaseController {
         QueueRepository::unlockQueue($queue->id);
     }
 
+    /**
+     * контроллер парсит обсуждения
+     */
     public function ParserBoardsChunk() {
         set_time_limit(240);
 
@@ -77,7 +82,12 @@ class DaemonsController extends BaseController {
 
         try {
             $boards = VkHelper::getBoards($queue->public_id, $lastBoardId);
-
+            if (isset($boards->items)) {
+                Log::error( 'apparently no boards on ' . __FUNCTION__ . ' ' . var_export($queue, 1));
+                QueueRepository::updateQueueStatus($queue->id, 2);
+                QueueRepository::unlockQueue($queue->id);
+                die();
+            }
             foreach ( $boards->items as $board) {
                 if ($board->id >= $lastBoardId) {
                     continue;
@@ -92,7 +102,7 @@ class DaemonsController extends BaseController {
         } catch(Exception $e) {
             //todo логирование
             QueueRepository::unlockQueue($queue->id);
-            Log::error($e->getMessage() . 'on ' . __FUNCTION__ . var_export($queue));
+            Log::error($e->getMessage() . ' on ' . __FUNCTION__ . var_export($queue, 1));
             die('не прокатило');
         }
         if (count($boards->items) < 100) {
@@ -103,5 +113,43 @@ class DaemonsController extends BaseController {
             unset($allIds);
         }
         QueueRepository::unlockQueue($queue->id);
+    }
+
+    /**
+     * контроллер проверяет csv
+     */
+    public function checkCSV() {
+
+        $queues = QueueRepository::getFinishedQueues();
+        foreach($queues as $queue) {
+            echo PHP_EOL;
+            if ($queue->type == 2) {
+                $csv  = FileHelper::getCsvPath($queue->public_id, StatRepository::POST_LIKES);
+                $csv2 = FileHelper::getCsvPath($queue->public_id, StatRepository::POST_REPOSTS);
+                if (!file_exists($csv)) {
+                    echo 'creating csv ' . $csv . PHP_EOL;
+                    $allIds =  StatRepository::GetAllIds(StatRepository::POST_LIKES, $queue->public_id);
+                    FileHelper::array2csv($allIds, $csv);
+                    die();
+                }
+
+                if (!file_exists($csv2)) {
+                    echo 'creating csv ' . $csv2 . PHP_EOL;
+                    $allIds =  StatRepository::GetAllIds(StatRepository::POST_REPOSTS, $queue->public_id);
+                    FileHelper::array2csv($allIds, $csv);
+                    die();
+                }
+            } elseif ($queue->type == 3) {
+                continue;
+            } elseif ($queue->type == 4) {
+                $csv  = FileHelper::getCsvPath($queue->public_id, StatRepository::BOARD_REPLS);
+                if (!file_exists($csv)) {
+                    $allIds =  StatRepository::GetAllIds(StatRepository::BOARD_REPLS, $queue->public_id);
+                    FileHelper::array2csv($allIds, $csv);
+                    die();
+                }
+            }
+
+        }
     }
 }

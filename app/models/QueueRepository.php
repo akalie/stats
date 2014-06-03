@@ -113,4 +113,10 @@ class QueueRepository {
     public static function getAllQueues() {
         return DB::table('queues')->where('type', self::QT_PUBLIC)->get();
     }
+
+    public static function getFinishedQueues() {
+        return DB::table('queues')->where('status_id', 2)
+            ->where('type', '!=', self::QT_PUBLIC)
+            ->get();
+    }
 } 
