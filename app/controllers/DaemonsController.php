@@ -129,7 +129,7 @@ class DaemonsController extends BaseController {
                 if (!file_exists($csv)) {
                     echo 'creating csv ' . $csv . PHP_EOL;
                     if (empty($allIds)) {
-                        emptyCSV($csv);
+                        FileHelper::emptyCSV($csv);
                         continue;
                     }
                     $allIds =  StatRepository::GetAllIds(StatRepository::POST_LIKES, $queue->public_id);
@@ -140,7 +140,7 @@ class DaemonsController extends BaseController {
                 if (!file_exists($csv2)) {
                     echo 'creating csv ' . $csv2 . PHP_EOL;
                     if (empty($allIds)) {
-                        emptyCSV($csv);
+                        FileHelper::emptyCSV($csv);
                         continue;
                     }
                     $allIds =  StatRepository::GetAllIds(StatRepository::POST_REPOSTS, $queue->public_id);
@@ -155,7 +155,7 @@ class DaemonsController extends BaseController {
                 if (!file_exists($csv)) {
                     $allIds =  StatRepository::GetAllIds(StatRepository::BOARD_REPLS, $queue->public_id);
                     if (empty($allIds)) {
-                        emptyCSV($csv);
+                        FileHelper::emptyCSV($csv);
                         continue;
                     }
                     FileHelper::array2csv($allIds, $csv);
