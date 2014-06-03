@@ -82,7 +82,7 @@ class DaemonsController extends BaseController {
 
         try {
             $boards = VkHelper::getBoards($queue->public_id, $lastBoardId);
-            if (isset($boards->items)) {
+            if (!isset($boards->items)) {
                 Log::error( 'apparently no boards on ' . __FUNCTION__ . ' ' . var_export($queue, 1));
                 QueueRepository::updateQueueStatus($queue->id, 2);
                 QueueRepository::unlockQueue($queue->id);
@@ -151,8 +151,8 @@ class DaemonsController extends BaseController {
                 continue;
             } elseif ($queue->type == 4) {
                 $csv  = FileHelper::getCsvPath($queue->public_id, StatRepository::BOARD_REPLS);
-                echo $csv;
                 if (!file_exists($csv)) {
+                    echo 'creating csv ' . $csv2 . PHP_EOL;
                     $allIds =  StatRepository::GetAllIds(StatRepository::BOARD_REPLS, $queue->public_id);
                     if (empty($allIds)) {
                         FileHelper::emptyCSV($csv);
