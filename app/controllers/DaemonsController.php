@@ -118,16 +118,20 @@ class DaemonsController extends BaseController {
     /**
      * контроллер проверяет csv
      */
-    public function checkCSV() {
+    public function CheckCSV() {
 
         $queues = QueueRepository::getFinishedQueues();
         foreach($queues as $queue) {
-            echo PHP_EOL;
+            echo $queue->id . '<br>';
             if ($queue->type == 2) {
                 $csv  = FileHelper::getCsvPath($queue->public_id, StatRepository::POST_LIKES);
                 $csv2 = FileHelper::getCsvPath($queue->public_id, StatRepository::POST_REPOSTS);
                 if (!file_exists($csv)) {
                     echo 'creating csv ' . $csv . PHP_EOL;
+                    if (empty($allIds)) {
+                        emptyCSV($csv);
+                        continue;
+                    }
                     $allIds =  StatRepository::GetAllIds(StatRepository::POST_LIKES, $queue->public_id);
                     FileHelper::array2csv($allIds, $csv);
                     die();
@@ -135,6 +139,10 @@ class DaemonsController extends BaseController {
 
                 if (!file_exists($csv2)) {
                     echo 'creating csv ' . $csv2 . PHP_EOL;
+                    if (empty($allIds)) {
+                        emptyCSV($csv);
+                        continue;
+                    }
                     $allIds =  StatRepository::GetAllIds(StatRepository::POST_REPOSTS, $queue->public_id);
                     FileHelper::array2csv($allIds, $csv);
                     die();
@@ -143,8 +151,13 @@ class DaemonsController extends BaseController {
                 continue;
             } elseif ($queue->type == 4) {
                 $csv  = FileHelper::getCsvPath($queue->public_id, StatRepository::BOARD_REPLS);
+                echo $csv;
                 if (!file_exists($csv)) {
                     $allIds =  StatRepository::GetAllIds(StatRepository::BOARD_REPLS, $queue->public_id);
+                    if (empty($allIds)) {
+                        emptyCSV($csv);
+                        continue;
+                    }
                     FileHelper::array2csv($allIds, $csv);
                     die();
                 }
