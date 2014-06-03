@@ -58,24 +58,31 @@
     <?php } ?>
 
     <?php if ( !is_null($queuesInfo)) {  ?>
-    <table сlass="table">
-        <thead>
-        <tr><td>Паблик</td><td>Лайки постов</td>Репосты постов</td><td>Обсуждения</td><td>Лайки альбомов</td><td>репосты альбомов</td></tr>
-        </thead>
-        <tbody>
-        <?php  foreach( $queuesInfo as $public) { ?>
+        <table class="table table-hover">
+            <thead>
             <tr>
-                <td><a href="http://vk.com/club<?= $public['publicId'] ?>"><?= $public['title'] ?></a></td>
-                <td><?= $public['postLikes'] ? link_to('download/' . $public['postLikes'], 'скачать') : 'В процессе' ?></td>
-                <td><?= $public['postReposts'] ? link_to('download/' . $public['postReposts'], 'скачать') : 'В процессе' ?></td>
-                <td><?= $public['boardRepls'] ? link_to('download/' . $public['boardRepls'], 'скачать') : 'В процессе' ?></td>
-                <td><?= $public['albumLikes'] ? link_to('download/' . $public['albumLikes'], 'скачать') : 'В процессе' ?></td>
-                <td><?= $public['albumReposts'] ? link_to('download/' . $public['albumReposts'], 'скачать') : 'В процессе' ?></td>
+                <th>Паблик</th>
+                <th>Лайки постов</th>
+                <th>Репосты постов</th>
+                <th>Обсуждения</th>
+                <th>Лайки альбомов</th>
+                <th>репосты альбомов</th>
             </tr>
+            </thead>
+            <tbody>
+            <?php  foreach( $queuesInfo as $public) { ?>
+                <tr>
+                    <td><a href="http://vk.com/club<?= $public['publicId'] ?>"><?= $public['title'] ?></a></td>
+                    <td><?= $public['postLikes'] ? link_to('download/' . $public['postLikes'], 'скачать') : 'В процессе' ?></td>
+                    <td><?= $public['postReposts'] ? link_to('download/' . $public['postReposts'], 'скачать') : 'В процессе' ?></td>
+                    <td><?= $public['boardRepls'] ? link_to('download/' . $public['boardRepls'], 'скачать') : 'В процессе' ?></td>
+                    <td><?= $public['albumLikes'] ? link_to('download/' . $public['albumLikes'], 'скачать') : 'В процессе' ?></td>
+                    <td><?= $public['albumReposts'] ? link_to('download/' . $public['albumReposts'], 'скачать') : 'В процессе' ?></td>
+                </tr>
+            <?php } ?>
+            </tbody>
+        </table>
     <?php } ?>
-        </tbody>
-    </table>
-<?php } ?>
 </div>
 
 
