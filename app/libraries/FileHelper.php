@@ -29,4 +29,11 @@ class FileHelper {
         $preable = $fullPath ? public_path() . '/csv/' : '' ;
         return  $preable . $publicId . '_' . $type. '.csv';
     }
+
+    public static function emptyCSV ($filename) {
+        $df = fopen($filename, 'w');
+        fputcsv($df, ['этих id у паблика нету']);
+        fclose($df);
+        return true;
+    }
 } 

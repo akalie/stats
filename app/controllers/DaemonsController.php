@@ -140,7 +140,7 @@ class DaemonsController extends BaseController {
                 if (!file_exists($csv2)) {
                     echo 'creating csv ' . $csv2 . PHP_EOL;
                     if (empty($allIds)) {
-                        FileHelper::emptyCSV($csv);
+                        FileHelper::emptyCSV($csv2);
                         continue;
                     }
                     $allIds =  StatRepository::GetAllIds(StatRepository::POST_REPOSTS, $queue->public_id);
