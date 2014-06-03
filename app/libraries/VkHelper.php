@@ -229,6 +229,9 @@
             while ($count == 100 ) {
                 $params['offset'] = $offset;
                 $boards = self::api_request('board.getTopics', $params);
+                if (!isset($boards->items)) {
+                    return [];
+                }
                 $count = count($boards->items);
                 foreach( $boards->items as $board) {
                     if ($lastBoardId && $board->id == $lastBoardId ) {
