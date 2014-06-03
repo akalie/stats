@@ -65,7 +65,7 @@
         <tbody>
         <?php  foreach( $queuesInfo as $public) { ?>
             <tr>
-                <td><?= $public['title'] ?></td>
+                <td><a href="http://vk.com/club<?= $public['publicId'] ?>"><?= $public['title'] ?></a></td>
                 <td><?= $public['postLikes'] ? link_to('download/' . $public['postLikes'], 'скачать') : 'В процессе' ?></td>
                 <td><?= $public['postReposts'] ? link_to('download/' . $public['postReposts'], 'скачать') : 'В процессе' ?></td>
                 <td><?= $public['boardRepls'] ? link_to('download/' . $public['boardRepls'], 'скачать') : 'В процессе' ?></td>

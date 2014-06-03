@@ -83,6 +83,7 @@ class IndexController extends BaseController {
                     'boardRepls'    =>  $boardReplsPath,
                     'albumLikes'    =>  $albumLikesPath,
                     'albumReposts'  =>  $albumRepostsPath,
+                    'publicId'      =>  $queue->public_id
                 ];
 
             }
