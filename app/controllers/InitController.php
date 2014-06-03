@@ -17,6 +17,15 @@ class InitController extends BaseController {
             $table->dateTime('locked_at')->nullable();
         });
 
+        /** таблица с токенами */
+        Schema::create('tokens', function($table) {
+            $table->increments('id');
+            $table->integer('user_id');
+            $table->integer('status_id');
+            $table->string('token');
+            $table->dateTime('created_at');
+        });
+
     }
 
 

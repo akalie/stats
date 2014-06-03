@@ -2,14 +2,11 @@
 
 class IndexController extends BaseController {
 
-	public function showIndex()
-	{
+	public function showIndex() {
 
 	}
 
-    public function showForm()
-	{
-
+    public function showForm() {
         $idString = Input::get('idString');
         $errorMsg = null;
         $resultIds = null;
@@ -96,6 +93,24 @@ class IndexController extends BaseController {
             ->with('queuesInfo', $queuesInfo);
 	}
 
+    public function tokenForm() {
+        $newToken = Input::get('newToken');
+        $userId   = Input::get('userId');
+        $errorMsg = null;
+
+        if ($newToken && $userId && is_numeric($userId)) {
+            TokenRepository::saveToken($userId, $newToken);
+            $errorMsg = 'Success!';
+        } elseif ($newToken || $userId) {
+            $errorMsg = 'Неправильные данные';
+        }
+
+        $tokens = TokenRepository::getAllTokens();
+
+        return View::make('statTokens')
+            ->with('errorMsg', $errorMsg)
+            ->with('tokens', $tokens);
+    }
 
     public function parsePublicId($stringId) {
         if (is_numeric($stringId)) {

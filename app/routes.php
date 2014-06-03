@@ -19,7 +19,9 @@ Route::get('/daemons/csv-parser', ['uses' => 'DaemonsController@CheckCSV']);
 
 Route::get('/', ['uses' => 'IndexController@showIndex']);
 
-Route::match(['GET', 'POST'], '/form', array('uses' => 'IndexController@showForm'));
+Route::match(['GET', 'POST'], '/tokens', ['uses' => 'IndexController@tokenForm']);
+
+Route::match(['GET', 'POST'], '/form', ['uses' => 'IndexController@showForm']);
 
 Route::get('/download/{filename}', function($filename = 'qq') {
     $fullPath = public_path() . '/csv/' . $filename;
@@ -28,4 +30,12 @@ Route::get('/download/{filename}', function($filename = 'qq') {
     } else {
         return 'File not exists';
     }
+});
+
+Route::get('/deleteToken/{tokenId}', function($tokenId = -1) {
+    if ($tokenId != -1 && is_numeric($tokenId)) {
+        TokenRepository::deleteToken($tokenId);
+    }
+
+    return Redirect::to('/tokens');
 });

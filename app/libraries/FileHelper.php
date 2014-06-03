@@ -26,8 +26,8 @@ class FileHelper {
     }
 
     public static function getCsvPath($publicId, $type, $fullPath = true ) {
-        $preable = $fullPath ? public_path() . '/csv/' : '' ;
-        return  $preable . $publicId . '_' . $type. '.csv';
+        $preamble = $fullPath ? public_path() . '/csv/' : '' ;
+        return  $preamble . $publicId . '_' . $type. '.csv';
     }
 
     public static function emptyCSV ($filename) {
