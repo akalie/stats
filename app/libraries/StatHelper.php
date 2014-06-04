@@ -4,9 +4,10 @@
             $params = [];
             $result = [];
 
+            $token = TokenRepository::getToken();
             list($params['group_id'], $params['topic_id']) = explode('_', $boardId);
             $params['count'] = 100;
-            $params['access_token'] = '788acb49f87cbbecafe19a97ead0be698c15fa787bee067bef3df26e0059d86a5f4fe5609826cbe00089b';
+            $params['access_token'] = $token->token;
             $params['v'] = '5.21';
             $offset = 0;
             $i = 0;
@@ -25,7 +26,7 @@
         }
 
         public static function getPostLikersIds($postId) {
-            $params = [];
+
             $result = [];
 
             list($params['owner_id'], $params['item_id']) = explode('_', $postId);
@@ -74,17 +75,57 @@
 
         }
 
+        /**
+         * вернет список лайкнувших/репостнувших фото
+         *
+         * @param int $photoId полное id фото(-xxx_yyy)
+         * @param string $type лайки или репосты
+         * @return array
+         */
+        public static function getPhotoIds($photoId, $type) {
+            $result = [];
+            $params =  [
+                'count'         =>  1000,
+                'type'          =>  'photo',
+                'filter'        =>  ($type == StatRepository::ALBUM_LIKES) ? 'likes' : 'copies',
+                'friends_only'  =>  0,
+                'v'             =>  '5.21'
+            ];
+            list($params['owner_id'], $params['item_id']) = explode('_', $photoId);
+
+            $offset = 0;
+            $i = 0;
+            while ($i++ < 25) {
+                $params['offset'] = $offset;
+                $response = VkHelper::api_request('likes.getList', $params);
+                $result = array_merge($result,  $response->items);
+                if (!count($response->items)) {
+                    break;
+                }
+                $offset += 1000;
+
+            }
+
+            return array_unique($result);
+        }
+
         public static function getIds($type, $id) {
             switch($type) {
-                case 'repost':
+                case StatRepository::POST_REPOSTS:
                     return self::getPostRepostersIds($id);
-                case 'likes' :
+                case StatRepository::POST_LIKES :
                     return self::getPostLikersIds($id);
-                case 'borderComments':
-                    return self::getBorderCommentersIds($id);
+                case StatRepository::BOARD_REPLS:
+                    return self::getBoardCommentersIds($id);
+                case StatRepository::ALBUM_LIKES:
+                    return self::getPhotoIds($id, StatRepository::ALBUM_LIKES);
+                case StatRepository::ALBUM_REPOSTS:
+                    return self::getPhotoIds($id, StatRepository::ALBUM_LIKES);
                 default:
                     return false;
             }
         }
+
+
     }
 ?>

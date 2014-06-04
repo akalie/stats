@@ -18,6 +18,8 @@
             <h3 style="color: red;" class="form-signin-heading"><?=$errorMsg?></h3>
         <?php }
     ?>
+    <label for="id"><a href="http://api.vkontakte.ru/oauth/authorize?client_id=4394678&scope=offline,stats,albums,photos&redirect_uri=http://oauth.vk.com/blank.html&response_type=token" target="_blank">Ссылка для получения токена</a></label>
+
     <form class="form" method="POST" action="" width="300px">
         <h3 class="form-signin-heading">Вставьте токен</h3>
         <br>
@@ -28,7 +30,7 @@
         <input type="text" name="newToken" class="form-control input-sm">
         <br>
         <br>
-        <input class="btn btn-large btn-primary" type="submit" value="Добавить токены" >
+        <input class="btn btn-large btn-primary" type="submit" value="Добавить токен" >
     </form>
 
     <?php if ( !empty($tokens)) {  ?>

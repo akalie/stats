@@ -6,15 +6,19 @@
 
 class StatRepository  {
     const
-        STAT_TABLE_PUBLIC_PREFIX = 'stp_id_',
-        POST_LIKES      = 'post_likes',
-        POST_REPOSTS    = 'post_reposts',
-        ALBUM_LIKES     = 'album_likes',
-        ALBUM_REPOSTS   = 'album_reposts',
-        BOARD_REPLS     = 'board_repls';
+        STAT_TABLE_PUBLIC_PREFIX = 'stp_id_', // префикс для названия таблиц с id
+        POST_LIKES      = 'post_likes',    // суффикс для таблицы с id лайкнувших посты
+        POST_REPOSTS    = 'post_reposts',  // суффикс для таблицы с id репостнувших посты
+        ALBUM_LIKES     = 'album_likes',   // суффикс для таблицы с id лайкнувших фото
+        ALBUM_REPOSTS   = 'album_reposts', // суффикс для таблицы с id репостнувших фото
+        BOARD_REPLS     = 'board_repls';   // суффикс для таблицы с id отписавшихся в борде
 
+    const
+        MAX_IDS_IN_CHUNK = 10000; // максимальное количество id, возвращаемых за раз из базы
 
-    /** создает таблицу под новый паблик
+    /**
+     * создает таблицу под новый паблик
+     *
      * @param int $publicId id паблика/группы
      */
     public static function createTablesForPublic($publicId) {
@@ -38,7 +42,14 @@ class StatRepository  {
         }
     }
 
-    public static function saveUserIds($type, $publicId, $userIds) {
+    /**
+     * Сохраняет пачку юзерских id в соотв. таблице
+     *
+     * @param string $type тип статистики (лайки/репосты фоток/постов или обсуждения)
+     * @param int $publicId id собщества
+     * @param array $userIds массив id юзеров
+     */
+    public static function saveUserIds($type, $publicId, array $userIds) {
         $tableName = self::STAT_TABLE_PUBLIC_PREFIX . (int) $publicId . '_' . $type;
         $params = [];
         foreach ($userIds as $id) {
@@ -50,8 +61,16 @@ class StatRepository  {
         DB::commit();
     }
 
-    public static function GetAllIds($type, $publicId) {
+    /**
+     * возвращает страницу id
+     *
+     * @param $type
+     * @param $publicId
+     * @param $offset
+     * @return array|static[]
+     */
+    public static function GetAllIds($type, $publicId, $offset) {
         $table = self::STAT_TABLE_PUBLIC_PREFIX . (int) $publicId . '_' . $type;
-        return DB::table($table)->distinct()->get();
+        return DB::table($table)->distinct()->offset($offset)->limit(self::MAX_IDS_IN_CHUNK)->get();
     }
 } 

@@ -21,7 +21,7 @@
         public static function api_request( $method, $request_params )
         {
             $url = VK_API_URL . $method;
-//            echo $url . '?' . http_build_query($request_params) .'<br>';
+            echo $url . '?' . http_build_query($request_params) .'<br>';
             $a = VkHelper::qurl_request( $url, $request_params );
             $res = json_decode(  $a, true );
 
@@ -199,6 +199,8 @@
         }
 
         /**
+         * парсит 100 постов со стены, со смещением
+         *
          * @param int $publicId
          * @param int $page номер страницы
          * @return array
@@ -215,9 +217,18 @@
             ];
         }
 
+        /**
+         * парсит все борды по 100, ищет $lastBoardId (если нет - возвращает первые 100)
+         * возвращает текущую 100 для допарса
+         *
+         * @param int $publicId
+         * @param int$lastBoardId
+         * @return array
+         */
         public static function getBoards($publicId, $lastBoardId) {
+            $token = TokenRepository::getToken();
             $params = [
-                'access_token' =>  '788acb49f87cbbecafe19a97ead0be698c15fa787bee067bef3df26e0059d86a5f4fe5609826cbe00089b',
+                'access_token' =>  $token->token,
                 'group_id' => $publicId,
                 'count' => 100,
                 'order' => 2,
@@ -245,6 +256,94 @@
             }
 
             return $boards;
-
         }
+
+        /**
+         * парсит 100 постов со стены, со смещением
+         *
+         * @param int $publicId
+         * @param int $page номер страницы
+         * @return array
+         */
+        public static function getPhotoChunk($publicId, $page) {
+            $albumId = $photoId = $finished = false;
+            if ($page)
+                list($albumId, $photoId, $finished) = explode('_', $page);
+
+            if (!$page || $finished !== '0') {
+                $albumId = self::getNextAlbum($publicId, $albumId);
+                echo $albumId . '<br>';
+            }
+            // считаем, что фоток больше нет
+            if (!$albumId) {
+                return false;
+            }
+
+            // перебираем фотки альбома, пока не встретим нужную. как встретим - возвращаем текущий чанк
+            $count = 500;
+            $offset = 0;
+            $params = ['owner_id' => '-' . $publicId, 'album_id' => $albumId, 'count' => 500, 'v' => 5.21, 'rev' => 1];
+            while ($count == 500) {
+                $params['offset'] = $offset;
+                $photoChunk = VkHelper::api_request('photos.get', $params);
+
+                if (empty($photoChunk))
+                    return ['error' => -1, 'currentAlbum' => $albumId];
+
+                if (!$photoId) {
+                    return $photoChunk;
+                }
+
+                foreach($photoChunk->items as $photo) {
+                    if ($photo->id == $photoId) {
+                        return $photoChunk;
+                    }
+                }
+                $offset += 500;
+                $count = count($photoChunk->items);
+            }
+
+            // oops
+            return ['error' => -1, 'currentAlbum' => $albumId];
+        }
+
+        /**
+         * возвращает id следующего альбома(или первого, если $stopAlbumId = false)
+         *
+         * @param int $publicId
+         * @param int $stopAlbumId номер последнего обработанного альбома
+         * @return array
+         */
+        public static function getNextAlbum($publicId, $stopAlbumId) {
+            $count = 20;
+            $offset = 0;
+            $returnNext = !$stopAlbumId;
+            $params = [
+                'owner_id'      =>  '-' . $publicId,
+                'count'         =>  20,
+                'need_system'   =>  0,
+                'photo_sizes'   =>  0,
+                'v'             =>  5.21,
+            ];
+            while ($count == 20) {
+                $params['offset'] = $offset;
+                $albumsChunk = VkHelper::api_request('photos.getAlbums', $params);
+                foreach($albumsChunk->items as $album) {
+                    if ($returnNext) {
+                        return $album->id;
+                    }
+
+                    if ($album->id == $stopAlbumId) {
+                        $returnNext = true;
+                    }
+                }
+
+                $offset += 20;
+                $count = count($albumsChunk->items);
+            }
+
+            return false;
+        }
+
+
     }

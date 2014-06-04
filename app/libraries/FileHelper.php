@@ -36,4 +36,40 @@ class FileHelper {
         fclose($df);
         return true;
     }
+
+    /**
+     * сохраняет все id из таблицы в файл
+     *
+     * @param int $publicId
+     * @param string $type
+     */
+    public static function saveToCSV($publicId, $type) {
+        set_time_limit(350);
+        $count = StatRepository::MAX_IDS_IN_CHUNK;
+        $offset = 0;
+
+        // создаем временный файл, который будем набивать id
+        $tempFilepath = self::getCsvPath($publicId, 'temp' . $type);
+        $df = fopen($tempFilepath, 'w');
+        fputcsv($df, ['vkId']);
+
+        while ($count == StatRepository::MAX_IDS_IN_CHUNK) {
+            $idsChunk = StatRepository::GetAllIds($type, $publicId, $offset);
+            foreach ($idsChunk as $row) {
+                fputcsv($df, [$row->user_id]);
+            }
+
+            if (empty($idsChunk)) {
+                fputcsv($df, ['этих id у паблика нету']);
+                break;
+            }
+
+            $count = count($idsChunk);
+            $offset += StatRepository::MAX_IDS_IN_CHUNK;
+        }
+
+        fclose($df);
+        $filepath = self::getCsvPath($publicId, $type);
+        rename ($tempFilepath, $filepath);
+    }
 } 

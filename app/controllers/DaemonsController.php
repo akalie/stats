@@ -3,7 +3,7 @@
 class DaemonsController extends BaseController {
 
     /**
-     * контроллер парсит просты на лайки и репосты
+     * контроллер парсит посты на лайки и репосты
      */
     public function ParsePostChunk() {
         set_time_limit(240);
@@ -41,7 +41,6 @@ class DaemonsController extends BaseController {
                 }
             }
         } catch(Exception $e) {
-            //todo логирование
             QueueRepository::unlockQueue($queue->id);
             Log::error($e->getMessage() . 'on ' . __FUNCTION__ . var_export($queue, 1));
             print_r($e->getMessage());
@@ -50,16 +49,8 @@ class DaemonsController extends BaseController {
         if ($wallPosts['isLast'] ) {
             //finished
             QueueRepository::updateQueueStatus($queue->id, 2);
-            $allIds =  StatRepository::GetAllIds(StatRepository::POST_LIKES, $queue->public_id);
-            $filename = FileHelper::getCsvPath($queue->public_id, StatRepository::POST_LIKES );
-            FileHelper::array2csv($allIds, $filename);
-
-            unset($allIds);
-
-            $allIds =  StatRepository::GetAllIds(StatRepository::POST_REPOSTS, $queue->public_id);
-            $filename = FileHelper::getCsvPath($queue->public_id, StatRepository::POST_REPOSTS );
-            FileHelper::array2csv($allIds, $filename);
-            unset($allIds);
+            FileHelper::saveToCSV($queue->public_id, StatRepository::POST_LIKES);
+            FileHelper::saveToCSV($queue->public_id, StatRepository::POST_REPOSTS);
         } else {
             QueueRepository::updateProcessed($queue->id, ++$page . '_' . $currentPostId);
         }
@@ -69,7 +60,7 @@ class DaemonsController extends BaseController {
     /**
      * контроллер парсит обсуждения
      */
-    public function ParserBoardsChunk() {
+    public function ParseBoardChunk() {
         set_time_limit(240);
 
         $queue = QueueRepository::getQueue(QueueRepository::QT_BOARDS);
@@ -107,62 +98,115 @@ class DaemonsController extends BaseController {
         }
         if (count($boards->items) < 100) {
             QueueRepository::updateQueueStatus($queue->id, 2);
-            $allIds =  StatRepository::GetAllIds(StatRepository::BOARD_REPLS, $queue->public_id);
-            $filename = FileHelper::getCsvPath($queue->public_id, StatRepository::BOARD_REPLS);
-            FileHelper::array2csv($allIds, $filename);
+            FileHelper::saveToCSV($queue->public_id, StatRepository::BOARD_REPLS);
             unset($allIds);
         }
         QueueRepository::unlockQueue($queue->id);
     }
 
     /**
-     * контроллер проверяет csv
+     * контроллер парсит альбомы
+     */
+    public function ParseAlbumChunk() {
+        set_time_limit(340);
+        $queue = QueueRepository::getQueue(QueueRepository::QT_ALBUMS);
+        if (!$queue) {
+            die('nothing to process');
+        }
+        QueueRepository::lockQueue($queue->id);
+
+        try {
+            $photoChunk = VkHelper::getPhotoChunk($queue->public_id, $queue->last_processed_id);
+            // облом с поиском фотки в альбоме
+            if (!is_object($photoChunk) && $photoChunk['error'] == -1) {
+                Log::alert('Не нашел фотки ' . var_export($queue, 1));
+                // пропускаем альбом
+                QueueRepository::updateProcessed($queue->id,  $photoChunk['currentAlbum'] . '_' . 0 . '_' . 0);
+                QueueRepository::unlockQueue($queue->id);
+                die();
+            }
+
+            // считаем, что фотки закончились/их нету
+            if (!$photoChunk) {
+                QueueRepository::updateQueueStatus($queue->id, 2);
+                QueueRepository::unlockQueue($queue->id);
+                FileHelper::saveToCSV($queue->public_id, StatRepository::ALBUM_LIKES);
+                FileHelper::saveToCSV($queue->public_id, StatRepository::ALBUM_REPOSTS);
+                die();
+            }
+            print_r($photoChunk);
+
+            $albumId = $finished = $lastPhotoId = false;
+            if ($queue->last_processed_id)
+                list($albumId, $lastPhotoId, $finished) = explode('_', $queue->last_processed_id);
+            if (!$lastPhotoId) {
+                $lastPhotoId = 10000000000;
+            }
+
+            foreach ($photoChunk->items as $photo) {
+                if ($photo->id >= $lastPhotoId && $lastPhotoId != 'xx') {
+                    continue;
+                }
+
+                // получим и сохраним лайки
+                $photoLikers = StatHelper::getPhotoIds('-' . $queue->public_id . '_' . $photo->id, StatRepository::ALBUM_LIKES);
+                if (count($photoLikers)) {
+                    StatRepository::saveUserIds(StatRepository::ALBUM_LIKES, $queue->public_id, $photoLikers);
+                }
+
+                // получим и сохраним репосты
+                $photoReposters = StatHelper::getPhotoIds('-' . $queue->public_id . '_' . $photo->id, StatRepository::ALBUM_REPOSTS);
+                if (count($photoReposters)) {
+                    StatRepository::saveUserIds(StatRepository::BOARD_REPLS, $queue->public_id, $photoReposters);
+                }
+
+                // сохраняем текущее состояние
+                $albumId = $photo->album_id;
+                $lastPhotoId = $photo->id;
+                QueueRepository::updateProcessed($queue->id, $albumId . '_' . $lastPhotoId . '_' . 0);
+            }
+
+        } catch(Exception $e) {
+            //todo логирование
+            QueueRepository::unlockQueue($queue->id);
+            Log::error($e->getMessage() . ' on ' . __FUNCTION__ . var_export($queue, 1));
+            die('не прокатило');
+        }
+
+        // считаем, что альбом кончился
+        if (count($photoChunk->items) < 1000) {
+            $albumId = $photoChunk->items[0]->album_id;
+            $photoId = 'xx';
+            QueueRepository::updateProcessed($queue->id, $albumId . '_' . $photoId . '_' . 1);
+        }
+        QueueRepository::unlockQueue($queue->id);
+    }
+
+    /**
+     * контроллер проверяет csv, если нет и очередь завершена - создает
      */
     public function CheckCSV() {
-
         $queues = QueueRepository::getFinishedQueues();
         foreach($queues as $queue) {
             echo $queue->id . '<br>';
-            if ($queue->type == 2) {
-                $csv  = FileHelper::getCsvPath($queue->public_id, StatRepository::POST_LIKES);
-                $csv2 = FileHelper::getCsvPath($queue->public_id, StatRepository::POST_REPOSTS);
-                if (!file_exists($csv)) {
-                    echo 'creating csv ' . $csv . PHP_EOL;
-                    if (empty($allIds)) {
-                        FileHelper::emptyCSV($csv);
-                        continue;
-                    }
-                    $allIds =  StatRepository::GetAllIds(StatRepository::POST_LIKES, $queue->public_id);
-                    FileHelper::array2csv($allIds, $csv);
+            if ($queue->type == QueueRepository::QT_POSTS) {
+                if (!file_exists(FileHelper::getCsvPath($queue->public_id, StatRepository::POST_LIKES))) {
+                    FileHelper::saveToCSV($queue->public_id, StatRepository::POST_LIKES);
                     die();
                 }
 
-                if (!file_exists($csv2)) {
-                    echo 'creating csv ' . $csv2 . PHP_EOL;
-                    if (empty($allIds)) {
-                        FileHelper::emptyCSV($csv2);
-                        continue;
-                    }
-                    $allIds =  StatRepository::GetAllIds(StatRepository::POST_REPOSTS, $queue->public_id);
-                    FileHelper::array2csv($allIds, $csv);
+                if (!file_exists(FileHelper::getCsvPath($queue->public_id, StatRepository::POST_REPOSTS))) {
+                    FileHelper::saveToCSV($queue->public_id, StatRepository::POST_REPOSTS);
                     die();
                 }
-            } elseif ($queue->type == 3) {
+            } elseif ($queue->type == QueueRepository::QT_ALBUMS) {
                 continue;
-            } elseif ($queue->type == 4) {
-                $csv  = FileHelper::getCsvPath($queue->public_id, StatRepository::BOARD_REPLS);
-                if (!file_exists($csv)) {
-                    echo 'creating csv ' . $csv2 . PHP_EOL;
-                    $allIds =  StatRepository::GetAllIds(StatRepository::BOARD_REPLS, $queue->public_id);
-                    if (empty($allIds)) {
-                        FileHelper::emptyCSV($csv);
-                        continue;
-                    }
-                    FileHelper::array2csv($allIds, $csv);
+            } elseif ($queue->type == QueueRepository::QT_BOARDS) {
+                if (!file_exists(FileHelper::getCsvPath($queue->public_id, StatRepository::BOARD_REPLS))) {
+                    FileHelper::saveToCSV($queue->public_id, StatRepository::BOARD_REPLS);
                     die();
                 }
             }
-
         }
     }
 }

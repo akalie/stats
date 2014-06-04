@@ -75,7 +75,7 @@ class QueueRepository {
         $now = new DateTime();
         return (bool) DB::table('queues')
                         ->where('id', $queueId)
-                        ->update(['locked_at' => $now->format('r')]);
+                        ->update(['locked_at' => $now->format("Y-m-d H:i:s")]);
     }
 
     /** разлочим очередь
