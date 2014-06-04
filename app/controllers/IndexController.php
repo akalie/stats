@@ -3,13 +3,6 @@
 class IndexController extends BaseController {
 
 	public function showIndex() {
-        echo 1;
-        $album = 174526950;
-        $i = 0;
-        while ($album) {
-            $album =  VkHelper::getNextAlbum(27421965, $album);
-            echo $album, ' ', $i++,'<br>';
-        }
 	}
 
     public function showForm() {

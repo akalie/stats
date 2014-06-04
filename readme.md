@@ -38,9 +38,10 @@
   ## Настройка демонов
   crontab
   ```
-    1-59/2     *       *       *       *       php /home/akalie/work/stats/stats/invoke.php  statlaravel.local /daemons/board-parser > /dev/null
-    1-59/2     *       *       *       *       php /home/akalie/work/stats/stats/invoke.php  statlaravel.local /daemons/posts-parser > /dev/null
-    1-59/5     *       *       *       *       php /var/www/work/stats/invoke.php   95.85.29.242 /daemons/csv-parser > /dev/null
+    1-59/3     *       *       *       *       php /var/www/work/stats/invoke.php   адрес сайта /daemons/albums-parser > /dev/null
+    1-59/2     *       *       *       *       php /var/www/work/stats/invoke.php   адрес сайта /daemons/posts-parser > /dev/null
+    1-59/2     *       *       *       *       php /var/www/work/stats/invoke.php   адрес сайта /daemons/boards-parser > /dev/null
+    1-59/5     *       *       *       *       php /var/www/work/stats/invoke.php   адрес сайта /daemons/csv-parser > /dev/null
   ```
 
   ## Апп для контакта
