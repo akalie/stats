@@ -173,7 +173,7 @@ class DaemonsController extends BaseController {
         }
 
         // считаем, что альбом кончился
-        if (count($photoChunk->items) < 1000) {
+        if (count($photoChunk->items) < 500) {
             $albumId = $photoChunk->items[0]->album_id;
             $photoId = 'xx';
             QueueRepository::updateProcessed($queue->id, $albumId . '_' . $photoId . '_' . 1);
