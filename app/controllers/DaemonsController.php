@@ -134,7 +134,6 @@ class DaemonsController extends BaseController {
                 FileHelper::saveToCSV($queue->public_id, StatRepository::ALBUM_REPOSTS);
                 die();
             }
-            print_r($photoChunk);
 
             $albumId = $finished = $lastPhotoId = false;
             if ($queue->last_processed_id)
