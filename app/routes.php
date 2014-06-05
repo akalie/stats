@@ -49,3 +49,5 @@ Route::get('/deleteQueue/{queueId}', function($queueId = -1) {
 
     return Redirect::to('/form');
 });
+
+#Route::get('/init/all', ['uses' => 'InitController@InitAll']);

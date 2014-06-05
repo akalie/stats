@@ -2,7 +2,7 @@
 
 class InitController extends BaseController {
 
-	public function initAll()
+	public function InitAll()
 	{
         /** таблица с очередями */
         Schema::create('queues', function($table) {
