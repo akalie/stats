@@ -53,6 +53,7 @@
                 <th>Обсуждения</th>
                 <th>Лайки альбомов</th>
                 <th>Репосты альбомов</th>
+                <th></th>
             </tr>
             </thead>
             <tbody>
@@ -64,6 +65,7 @@
                     <td><?= $public['boardRepls'] ? link_to('download/' . $public['boardRepls'], 'скачать') : 'В процессе' ?></td>
                     <td><?= $public['albumLikes'] ? link_to('download/' . $public['albumLikes'], 'скачать') : 'В процессе' ?></td>
                     <td><?= $public['albumReposts'] ? link_to('download/' . $public['albumReposts'], 'скачать') : 'В процессе' ?></td>
+                    <td><?= link_to('deleteQueue/' . $public['queueId'], 'удалить') ?></td>
                 </tr>
             <?php } ?>
             </tbody>

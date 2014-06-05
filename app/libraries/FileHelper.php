@@ -72,4 +72,19 @@ class FileHelper {
         $filepath = self::getCsvPath($publicId, $type);
         rename ($tempFilepath, $filepath);
     }
+
+    public static function deleteAllPublicCSV($publicId) {
+        $types = [
+                    StatRepository::POST_LIKES,
+                    StatRepository::POST_REPOSTS,
+                    StatRepository::ALBUM_LIKES,
+                    StatRepository::ALBUM_REPOSTS,
+                    StatRepository::BOARD_REPLS
+                 ];
+
+        foreach ($types as $type) {
+            $path = self::getCsvPath($publicId, $type);
+            @unlink($path);
+        }
+    }
 } 

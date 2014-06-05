@@ -120,33 +120,27 @@ class DaemonsController extends BaseController {
             // облом с поиском фотки в альбоме
             if (!is_object($photoChunk) && $photoChunk['error'] == -1) {
                 Log::alert('Не нашел фотки ' . var_export($queue, 1));
+                echo 'пропускаем альбом' . var_export($queue, 1) . PHP_EOL;
                 // пропускаем альбом
-                QueueRepository::updateProcessed($queue->id,  $photoChunk['currentAlbum'] . '_' . 0 . '_' . 0);
+                QueueRepository::updateProcessed($queue->id,  $photoChunk['currentAlbum'] . '_' . 0 . '_' . 1);
                 QueueRepository::unlockQueue($queue->id);
                 die();
             }
 
             // считаем, что фотки закончились/их нету
             if (!$photoChunk) {
+                echo 'что фотки закончились/их нету ' . var_export($queue, 1). PHP_EOL;
                 QueueRepository::updateQueueStatus($queue->id, 2);
                 QueueRepository::unlockQueue($queue->id);
                 FileHelper::saveToCSV($queue->public_id, StatRepository::ALBUM_LIKES);
                 FileHelper::saveToCSV($queue->public_id, StatRepository::ALBUM_REPOSTS);
                 die();
             }
-
-            $albumId = $finished = $lastPhotoId = false;
-            if ($queue->last_processed_id)
-                list($albumId, $lastPhotoId, $finished) = explode('_', $queue->last_processed_id);
-            if (!$lastPhotoId) {
-                $lastPhotoId = 10000000000;
+            $albumId = $page = $finished = 0;
+            if ($queue->last_processed_id) {
+                list($albumId, $page, $finished) = explode('_', $queue->last_processed_id);
             }
-
             foreach ($photoChunk->items as $photo) {
-                if ($photo->id >= $lastPhotoId && $lastPhotoId != 'xx') {
-                    continue;
-                }
-
                 // получим и сохраним лайки
                 $photoLikers = StatHelper::getPhotoIds('-' . $queue->public_id . '_' . $photo->id, StatRepository::ALBUM_LIKES);
                 if (count($photoLikers)) {
@@ -159,10 +153,7 @@ class DaemonsController extends BaseController {
                     StatRepository::saveUserIds(StatRepository::BOARD_REPLS, $queue->public_id, $photoReposters);
                 }
 
-                // сохраняем текущее состояние
                 $albumId = $photo->album_id;
-                $lastPhotoId = $photo->id;
-                QueueRepository::updateProcessed($queue->id, $albumId . '_' . $lastPhotoId . '_' . 0);
             }
 
         } catch(Exception $e) {
@@ -174,9 +165,11 @@ class DaemonsController extends BaseController {
 
         // считаем, что альбом кончился
         if (count($photoChunk->items) < 500) {
-            $albumId = $photoChunk->items[0]->album_id;
-            $photoId = 'xx';
-            QueueRepository::updateProcessed($queue->id, $albumId . '_' . $photoId . '_' . 1);
+            echo 'альбом кончился ' . count($photoChunk->items) , '<br>';
+            QueueRepository::updateProcessed($queue->id, $albumId . '_' . 0 . '_' . 1);
+        } else {
+            // подготовим очередь для следующей страницы альбома
+            QueueRepository::updateProcessed($queue->id, $albumId . '_' . ++$page . '_' . 0);
         }
         QueueRepository::unlockQueue($queue->id);
     }

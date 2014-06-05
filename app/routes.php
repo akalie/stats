@@ -41,3 +41,11 @@ Route::get('/deleteToken/{tokenId}', function($tokenId = -1) {
 
     return Redirect::to('/tokens');
 });
+
+Route::get('/deleteQueue/{queueId}', function($queueId = -1) {
+    if ($queueId != -1 && is_numeric($queueId)) {
+        QueueRepository::deleteQueue($queueId);
+    }
+
+    return Redirect::to('/form');
+});

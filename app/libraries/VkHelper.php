@@ -21,7 +21,7 @@
         public static function api_request( $method, $request_params )
         {
             $url = VK_API_URL . $method;
-            echo $url . '?' . http_build_query($request_params) .'<br>';
+//            echo $url . '?' . http_build_query($request_params) .'<br>';
             $a = VkHelper::qurl_request( $url, $request_params );
             $res = json_decode(  $a, true );
 
@@ -144,8 +144,6 @@
             }
         }
 
-
-
         public static function check_at( $access_token )
         {
             $res = self::get_vk_time( $access_token );
@@ -262,49 +260,36 @@
          * парсит 100 постов со стены, со смещением
          *
          * @param int $publicId
-         * @param int $page номер страницы
+         * @param int $processed номер страницы
          * @return array
          */
-        public static function getPhotoChunk($publicId, $page) {
-            $albumId = $photoId = $finished = false;
-            if ($page)
-                list($albumId, $photoId, $finished) = explode('_', $page);
+        public static function getPhotoChunk($publicId, $processed) {
+            $albumId = $page = $finished = 0;
+            if ($processed)
+                list($albumId, $page, $finished) = explode('_', $processed);
+            echo 'get next album ', $albumId, '_', $page, '_', $finished, '<br>';
 
-            if (!$page || $finished !== '0') {
+            if (!$processed || $finished != '0') {
                 $albumId = self::getNextAlbum($publicId, $albumId);
+                echo 'get next album ', $publicId, '_', $albumId , '<br>';
                 echo $albumId . '<br>';
             }
-            // считаем, что фоток больше нет
+            // считаем, что фоток больше нет (вообще в паблике)
             if (!$albumId) {
                 return false;
             }
 
-            // перебираем фотки альбома, пока не встретим нужную. как встретим - возвращаем текущий чанк
-            $count = 500;
-            $offset = 0;
+            // берем следующий (первый?) чанк
             $params = ['owner_id' => '-' . $publicId, 'album_id' => $albumId, 'count' => 500, 'v' => 5.21, 'rev' => 1];
-            while ($count == 500) {
-                $params['offset'] = $offset;
-                $photoChunk = VkHelper::api_request('photos.get', $params);
+            $params['offset'] = $page * 500;
+            $photoChunk = VkHelper::api_request('photos.get', $params);
 
-                if (empty($photoChunk))
-                    return ['error' => -1, 'currentAlbum' => $albumId];
-
-                if (!$photoId) {
-                    return $photoChunk;
-                }
-
-                foreach($photoChunk->items as $photo) {
-                    if ($photo->id == $photoId) {
-                        return $photoChunk;
-                    }
-                }
-                $offset += 500;
-                $count = count($photoChunk->items);
+            if (empty($photoChunk)) {
+                // считаем что альбом пустой/закончился
+                return ['error' => 1, 'current_album' => $albumId];
             }
-
-            // oops
-            return ['error' => -1, 'currentAlbum' => $albumId];
+            echo 'parse ' . $albumId . PHP_EOL;
+            return $photoChunk;
         }
 
         /**

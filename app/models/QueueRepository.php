@@ -119,4 +119,13 @@ class QueueRepository {
             ->where('type', '!=', self::QT_PUBLIC)
             ->get();
     }
+
+    public static function deleteQueue($queueId) {
+        $queue = DB::table('queues')->find($queueId);
+        if ($queue) {
+            DB::table('queues')->where('parent_queue_id', $queueId)->delete();
+            DB::table('queues')->delete($queueId);
+            FileHelper::deleteAllPublicCSV($queue->public_id);
+        }
+    }
 } 
