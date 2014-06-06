@@ -150,7 +150,7 @@ class DaemonsController extends BaseController {
                 // получим и сохраним репосты
                 $photoReposters = StatHelper::getPhotoIds('-' . $queue->public_id . '_' . $photo->id, StatRepository::ALBUM_REPOSTS);
                 if (count($photoReposters)) {
-                    StatRepository::saveUserIds(StatRepository::BOARD_REPLS, $queue->public_id, $photoReposters);
+                    StatRepository::saveUserIds(StatRepository::ALBUM_REPOSTS, $queue->public_id, $photoReposters);
                 }
 
                 $albumId = $photo->album_id;

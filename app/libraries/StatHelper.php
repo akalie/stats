@@ -99,7 +99,7 @@
                 $params['offset'] = $offset;
                 $response = VkHelper::api_request('likes.getList', $params);
                 $result = array_merge($result,  $response->items);
-                if (!count($response->items)) {
+                if (count($response->items) < 1000) {
                     break;
                 }
                 $offset += 1000;
@@ -128,4 +128,3 @@
 
 
     }
-?>
