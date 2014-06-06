@@ -118,11 +118,10 @@ class DaemonsController extends BaseController {
         try {
             $photoChunk = VkHelper::getPhotoChunk($queue->public_id, $queue->last_processed_id);
             // облом с поиском фотки в альбоме
-            if (!is_object($photoChunk) && $photoChunk['error'] == -1) {
+            if (!is_object($photoChunk) && $photoChunk['error'] == 1) {
                 Log::alert('Не нашел фотки ' . var_export($queue, 1));
-                echo 'пропускаем альбом' . var_export($queue, 1) . PHP_EOL;
                 // пропускаем альбом
-                QueueRepository::updateProcessed($queue->id,  $photoChunk['currentAlbum'] . '_' . 0 . '_' . 1);
+                QueueRepository::updateProcessed($queue->id,  $photoChunk['current_album'] . '_' . 0 . '_' . 1);
                 QueueRepository::unlockQueue($queue->id);
                 die();
             }

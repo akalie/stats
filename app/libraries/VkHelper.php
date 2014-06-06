@@ -283,8 +283,7 @@
             $params = ['owner_id' => '-' . $publicId, 'album_id' => $albumId, 'count' => 500, 'v' => 5.21, 'rev' => 1];
             $params['offset'] = $page * 500;
             $photoChunk = VkHelper::api_request('photos.get', $params);
-
-            if (empty($photoChunk)) {
+            if (empty($photoChunk) || ($photoChunk->count == 0)) {
                 // считаем что альбом пустой/закончился
                 return ['error' => 1, 'current_album' => $albumId];
             }
