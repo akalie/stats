@@ -125,6 +125,8 @@ class QueueRepository {
         if ($queue) {
             DB::table('queues')->where('parent_queue_id', $queueId)->delete();
             DB::table('queues')->delete($queueId);
+
+            StatRepository::deleteTablesForPublic($queue->public_id);
             FileHelper::deleteAllPublicCSV($queue->public_id);
         }
     }

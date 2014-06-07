@@ -73,4 +73,18 @@ class StatRepository  {
         $table = self::STAT_TABLE_PUBLIC_PREFIX . (int) $publicId . '_' . $type;
         return DB::table($table)->distinct()->offset($offset)->limit(self::MAX_IDS_IN_CHUNK)->get();
     }
+
+    /**
+     * удаляет все таблицы этого паблика
+     *
+     * @param $publicId
+     */
+    public static function deleteTablesForPublic($publicId) {
+        $newTableName = self::STAT_TABLE_PUBLIC_PREFIX . (int) $publicId;
+        Schema::dropIfExists($newTableName . '_post_likes');
+        Schema::dropIfExists($newTableName . '_post_reposts');
+        Schema::dropIfExists($newTableName . '_board_repls');
+        Schema::dropIfExists($newTableName . '_album_likes');
+        Schema::dropIfExists($newTableName . '_album_reposts');
+    }
 } 

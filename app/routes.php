@@ -11,20 +11,19 @@
 |
 */
 
-Route::get('/daemons/boards-parser', ['uses' => 'DaemonsController@ParseBoardChunk']);
 
-Route::get('/daemons/albums-parser', ['uses' => 'DaemonsController@ParseAlbumChunk']);
-
-Route::get('/daemons/posts-parser', ['uses' => 'DaemonsController@ParsePostChunk']);
-
-Route::get('/daemons/csv-parser', ['uses' => 'DaemonsController@CheckCSV']);
-
-Route::get('/', ['uses' => 'IndexController@showIndex']);
+/**
+ * страницы
+ */
+Route::get('/', ['uses' => 'IndexController@showIndex']); // пустая
 
 Route::match(['GET', 'POST'], '/tokens', ['uses' => 'IndexController@tokenForm']);
 
 Route::match(['GET', 'POST'], '/form', ['uses' => 'IndexController@showForm']);
 
+/**
+ * скачивание csv
+ */
 Route::get('/download/{filename}', function($filename = 'qq') {
     $fullPath = public_path() . '/csv/' . $filename;
     if( is_file($fullPath) ) {
@@ -34,6 +33,9 @@ Route::get('/download/{filename}', function($filename = 'qq') {
     }
 });
 
+/**
+ * удаление токена
+ */
 Route::get('/deleteToken/{tokenId}', function($tokenId = -1) {
     if ($tokenId != -1 && is_numeric($tokenId)) {
         TokenRepository::deleteToken($tokenId);
@@ -42,6 +44,9 @@ Route::get('/deleteToken/{tokenId}', function($tokenId = -1) {
     return Redirect::to('/tokens');
 });
 
+/**
+ * удаление паблика
+ */
 Route::get('/deleteQueue/{queueId}', function($queueId = -1) {
     if ($queueId != -1 && is_numeric($queueId)) {
         QueueRepository::deleteQueue($queueId);
@@ -50,4 +55,15 @@ Route::get('/deleteQueue/{queueId}', function($queueId = -1) {
     return Redirect::to('/form');
 });
 
+/**
+ * демоны
+ */
+Route::get('/daemons/boards-parser', ['uses' => 'DaemonsController@ParseBoardChunk']);
+Route::get('/daemons/albums-parser', ['uses' => 'DaemonsController@ParseAlbumChunk']);
+Route::get('/daemons/posts-parser',  ['uses' => 'DaemonsController@ParsePostChunk']);
+Route::get('/daemons/csv-parser',    ['uses' => 'DaemonsController@CheckCSV']);
+
+/**
+ * инициализация проекта
+ */
 #Route::get('/init/all', ['uses' => 'InitController@InitAll']);

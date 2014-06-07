@@ -23,10 +23,12 @@ class DaemonsController extends BaseController {
         try {
             $wallPosts = VkHelper::getWallPage('-' . $queue->public_id, $page);
             $currentPostId = null;
+            $checkCount =  0;
             foreach ( $wallPosts['posts'] as $post) {
                 if ($post->id <= $stopId) {
                     continue;
                 }
+                $checkCount++;
                 if (!$currentPostId) {
                     $currentPostId = $post->id;
                 }
@@ -46,6 +48,7 @@ class DaemonsController extends BaseController {
             print_r($e->getMessage());
             die('не прокатило');
         }
+        echo PHP_EOL . ' всего постов обработано ' , $checkCount . PHP_EOL;
         if ($wallPosts['isLast'] ) {
             //finished
             QueueRepository::updateQueueStatus($queue->id, 2);
