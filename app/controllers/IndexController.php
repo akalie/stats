@@ -20,7 +20,7 @@ class IndexController extends BaseController {
                 if (QueueRepository::createNewPublicQueues($id)) {
                     StatRepository::createTablesForPublic($id);
                 } else {
-                    $errorMsg = 'Уже есть в сиситеме';
+                    $errorMsg = 'Уже есть в системе';
                 }
             }
         }
