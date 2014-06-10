@@ -76,14 +76,19 @@ class FileHelper {
         rename ($tempFilepath, $filepath);
     }
 
+    /**
+     * удаляет все файлы, связанные с пабликом
+     *
+     * @param $publicId
+     */
     public static function deleteAllPublicCSV($publicId) {
         $types = [
-                    StatRepository::POST_LIKES,
-                    StatRepository::POST_REPOSTS,
-                    StatRepository::ALBUM_LIKES,
-                    StatRepository::ALBUM_REPOSTS,
-                    StatRepository::BOARD_REPLS
-                 ];
+            StatRepository::POST_LIKES,
+            StatRepository::POST_REPOSTS,
+            StatRepository::ALBUM_LIKES,
+            StatRepository::ALBUM_REPOSTS,
+            StatRepository::BOARD_REPLS
+        ];
 
         foreach ($types as $type) {
             $path = self::getCsvPath($publicId, $type);
