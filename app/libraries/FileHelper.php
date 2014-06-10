@@ -53,7 +53,7 @@ class FileHelper {
         $df = fopen($tempFilepath, 'w');
         fputcsv($df, ['vkId']);
 
-        while ($count == StatRepository::MAX_IDS_IN_CHUNK) {
+        while ($count) {
             $idsChunk = StatRepository::GetAllIds($type, $publicId, $offset);
             foreach ($idsChunk as $row) {
                 fputcsv($df, [$row->user_id]);
