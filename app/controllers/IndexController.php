@@ -9,7 +9,9 @@ class IndexController extends BaseController {
      * контрол основной страницы
      */
     public function showForm() {
+        // url, shortname, id паблика, который надо добавить на парс
         $idString = Input::get('idString');
+
         $errorMsg = null;
         $resultIds = null;
         if ($idString) {
@@ -96,6 +98,7 @@ class IndexController extends BaseController {
      * возвращает id паблика по введенному url, shortname, id ...
      *
      * @param $stringId - url паблика, его id или shortlink
+     *
      * @return bool | int
      */
     private function parsePublicId($stringId) {
