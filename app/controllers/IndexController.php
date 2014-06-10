@@ -68,6 +68,11 @@ class IndexController extends BaseController {
             ->with('queuesInfo', $queuesInfo);
 	}
 
+    /**
+     * контролл страницы токенов
+     *
+     * @return $this|\Illuminate\View\View
+     */
     public function tokenForm() {
         $newToken = Input::get('newToken');
         $userId   = Input::get('userId');
@@ -87,6 +92,12 @@ class IndexController extends BaseController {
             ->with('tokens', $tokens);
     }
 
+    /**
+     * возвращает id паблика по введенному url, shortname, id ...
+     *
+     * @param $stringId - url паблика, его id или shortlink
+     * @return bool | int
+     */
     private function parsePublicId($stringId) {
         if (is_numeric($stringId)) {
             return $stringId;
@@ -110,26 +121,4 @@ class IndexController extends BaseController {
         return false;
 
     }
-
-    public function parseIdString($type, $idString) {
-        switch($type) {
-            case 'repost':
-            case 'likes' :
-                if (!preg_match('/wall(-?\d+_\d+)/', $idString, $matches)) {
-                    return false;
-                }
-
-                return $matches[1];
-            case 'borderComments':
-                if (!preg_match('/topic-(\d+_\d+)/', $idString, $matches)) {
-                    return false;
-                }
-                return $matches[1];
-            default:
-                return false;
-        }
-    }
-
-
-
 }
