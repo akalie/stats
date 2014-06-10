@@ -15,14 +15,14 @@ class IndexController extends BaseController {
         if ($idString) {
             $id = $this->parsePublicId($idString);
             if (!$id) {
-                $errorMsg = 'Не получилось распознать URL поста/топика.';
-            }
-            if (QueueRepository::createNewPublicQueues($id)) {
-                StatRepository::createTablesForPublic($id);
+                $errorMsg = 'Не получилось распознать URL паблика';
             } else {
-                $errorMsg = 'Уже есть в сиситеме';
+                if (QueueRepository::createNewPublicQueues($id)) {
+                    StatRepository::createTablesForPublic($id);
+                } else {
+                    $errorMsg = 'Уже есть в сиситеме';
+                }
             }
-
         }
         $queues = QueueRepository::getAllQueues();
         $queuesInfo = [];
@@ -36,9 +36,11 @@ class IndexController extends BaseController {
             foreach($publicInfo as $public) {
                 $publicInfoById[$public->gid] = $public;
             }
+
             unset($publicInfo);
 
-            foreach( $queues as $queue) {
+            foreach($queues as $queue) {
+
                 $postLikesPath      = FileHelper::getCsvPath($queue->public_id, StatRepository::POST_LIKES);
                 $postRepostsPath    = FileHelper::getCsvPath($queue->public_id, StatRepository::POST_REPOSTS);
                 $albumLikesPath     = FileHelper::getCsvPath($queue->public_id, StatRepository::ALBUM_LIKES);
@@ -85,19 +87,25 @@ class IndexController extends BaseController {
             ->with('tokens', $tokens);
     }
 
-    public function parsePublicId($stringId) {
+    private function parsePublicId($stringId) {
         if (is_numeric($stringId)) {
             return $stringId;
         }
         if (strpos($stringId, '/') !== false) {
             $url = explode('/', $stringId);
             $shortlink = end($url);
+            if (strpos($shortlink, 'public') === 0 or strpos($shortlink, 'club')) {
+                $shortlink = str_replace(['public', 'club'], '', $shortlink);
+            }
         } else {
             $shortlink = $stringId;
         }
-
-        $groupInfo = VkHelper::api_request('groups.getById', ['group_ids' => $shortlink, 'v' => '5.21']);
-        if (isset($groupInfo[0]->id))
+        try {
+            $groupInfo = VkHelper::api_request('groups.getById', ['group_ids' => $shortlink, 'v' => '5.21']);
+        } catch (Exception $e) {
+            return false;
+        }
+        if (isset($groupInfo[0]) && isset($groupInfo[0]))
             return $groupInfo[0]->id;
         return false;
 
