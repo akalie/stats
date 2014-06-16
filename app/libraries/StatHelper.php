@@ -15,10 +15,11 @@
                 $params['offset'] = $offset;
                 $response = VkHelper::api_request('board.getComments', $params);
                 sleep(VkHelper::PAUSE * 2);
-                $result = array_merge($result, array_map(function ($item) {return  $item->from_id;}, $response->items));
-                if(!count($response->items)) {
+                if (!isset($response->items) || !count($response->items)) {
                     break;
                 }
+                $result = array_merge($result, array_map(function ($item) {return  $item->from_id;}, $response->items));
+
                 $offset += 100;
             }
 
@@ -40,11 +41,11 @@
             while ($i++ < 225) {
                 $params['offset'] = $offset;
                 $response = VkHelper::api_request('likes.getList', $params);
-                $result = array_merge($result,  $response->items);
-                #$result['groups'] = array_map(function ($group) { return $group->id; }, $response->groups);
-                if (!count($response->items)) {
+                if (!isset($response->items) || !count($response->items)) {
                     break;
                 }
+                $result = array_merge($result,  $response->items);
+                #$result['groups'] = array_map(function ($group) { return $group->id; }, $response->groups);
                 $offset += 1000;
 
             }
@@ -64,10 +65,11 @@
             while($i++ < 25) {
                 $params['offset'] = $offset;
                 $response = VkHelper::api_request('wall.getReposts', $params);
-                $result['users'] = array_merge($result['users'], array_map(function ($item) { return (strpos($item->from_id, '-') === false) ? $item->from_id: false; }, $response->items));
-                if(!count($response->items)) {
+                if (!isset($response->items) || !count($response->items)) {
                     break;
                 }
+                $result['users'] = array_merge($result['users'], array_map(function ($item) { return (strpos($item->from_id, '-') === false) ? $item->from_id: false; }, $response->items));
+
                 $offset += 1000;
 
             }

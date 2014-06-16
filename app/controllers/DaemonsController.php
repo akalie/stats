@@ -44,7 +44,7 @@ class DaemonsController extends BaseController {
             }
         } catch(Exception $e) {
             QueueRepository::unlockQueue($queue->id);
-            Log::error($e->getMessage() . 'on ' . __FUNCTION__ . var_export($queue, 1));
+            Log::error($e->getMessage() . 'on ' . __FUNCTION__ . var_export($queue, 1) . ' trace: ' . var_export($e->getTrace()[0], 1));
             print_r($e->getMessage());
             die('не прокатило');
         }
@@ -96,7 +96,7 @@ class DaemonsController extends BaseController {
         } catch(Exception $e) {
             //todo логирование
             QueueRepository::unlockQueue($queue->id);
-            Log::error($e->getMessage() . ' on ' . __FUNCTION__ . var_export($queue, 1));
+            Log::error($e->getMessage() . 'on ' . __FUNCTION__ . var_export($queue, 1) . ' trace: ' . var_export($e->getTrace()[0], 1));
             die('не прокатило');
         }
         if (count($boards->items) < 100) {
@@ -161,7 +161,7 @@ class DaemonsController extends BaseController {
         } catch(Exception $e) {
             //todo логирование
             QueueRepository::unlockQueue($queue->id);
-            Log::error($e->getMessage() . ' on ' . __FUNCTION__ . var_export($queue, 1));
+            Log::error($e->getMessage() . 'on ' . __FUNCTION__ . var_export($queue, 1) . ' trace: ' . var_export($e->getTrace()[0], 1));
             die('не прокатило');
         }
 
