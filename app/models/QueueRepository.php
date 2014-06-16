@@ -59,6 +59,14 @@ class QueueRepository {
      * @return \Illuminate\Database\Query\Builder|static
      */
     public static function getQueue($queueType) {
+        $count = DB::table('queues')
+                        ->where('type', $queueType)
+                        ->where('status_id', 1)
+                        ->whereNotNull('locked_at')
+                        ->count();
+        if ($count >= 2)
+            return false;
+
         $queue = DB::table('queues')
                     ->where('type', $queueType)
                     ->where('status_id', 1)

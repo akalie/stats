@@ -6,11 +6,11 @@ class DaemonsController extends BaseController {
      * контроллер парсит посты на лайки и репосты
      */
     public function ParsePostChunk() {
-        set_time_limit(240);
+        set_time_limit(340);
 
         $queue = QueueRepository::getQueue(QueueRepository::QT_POSTS);
         if (!$queue) {
-            die('nothing to process');
+            die('nothing to process or all slots are busy');
         }
         QueueRepository::lockQueue($queue->id);
         if (!empty($queue->last_processed_id)) {
@@ -131,7 +131,7 @@ class DaemonsController extends BaseController {
 
             // считаем, что фотки закончились/их нету
             if (!$photoChunk) {
-                echo 'что фотки закончились/их нету ' . var_export($queue, 1). PHP_EOL;
+                echo 'фотки закончились/их нету ' . var_export($queue, 1). PHP_EOL;
                 QueueRepository::updateQueueStatus($queue->id, 2);
                 QueueRepository::unlockQueue($queue->id);
                 FileHelper::saveToCSV($queue->public_id, StatRepository::ALBUM_LIKES);
