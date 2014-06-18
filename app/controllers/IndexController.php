@@ -95,6 +95,34 @@ class IndexController extends BaseController {
     }
 
     /**
+     * контролл парса отдельных постов
+     *
+     * @return $this|\Illuminate\View\View
+     */
+    public function postForm() {
+        $label      = Input::get('label');
+        $postIds    = Input::get('postIds');
+        $errorMsg   = null;
+        if (!$label) {
+            $label = (new \DateTime())->format('H:i_d-m-Y');
+        }
+        if ($postIds) {
+            $postIds = explode(',', $postIds);
+
+            $postIds = preg_grep('/-?\d+_\d+/', $postIds);
+
+            if (empty($postIds) || count($postIds) > 15) {
+                $errorMsg = '<a href="http://youtu.be/OLmKm7fYk7c?t=4m46s" target="_blank">Неет</a>';
+            } else {
+            }
+        }
+        return View::make('statPost')
+            ->with('errorMsg', $errorMsg);
+    }
+
+
+
+    /**
      * возвращает id паблика по введенному url, shortname, id ...
      *
      * @param $stringId - url паблика, его id или shortlink

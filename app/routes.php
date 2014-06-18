@@ -21,6 +21,8 @@ Route::match(['GET', 'POST'], '/tokens', ['uses' => 'IndexController@tokenForm']
 
 Route::match(['GET', 'POST'], '/form', ['uses' => 'IndexController@showForm']);
 
+Route::match(['GET', 'POST'], '/post', ['uses' => 'IndexController@postForm']);
+
 /**
  * скачивание csv
  */

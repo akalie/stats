@@ -4,6 +4,7 @@
         <div class="collapse navbar-collapse" >
             <ul class="nav navbar-nav">
                 <li><?=link_to('/form','Стата')?></li>
+                <li><?=link_to('/post','Посты')?></li>
                 <li><?=link_to('/tokens','Токены')?></li>
             </ul>
         </div><!-- /.navbar-collapse -->
