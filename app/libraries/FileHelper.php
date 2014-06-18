@@ -44,7 +44,7 @@ class FileHelper {
      * @param string $type
      */
     public static function saveToCSV($publicId, $type) {
-        set_time_limit(350);
+        set_time_limit(1000);
         $count = StatRepository::MAX_IDS_IN_CHUNK;
         $offset = 0;
 
@@ -54,7 +54,13 @@ class FileHelper {
         fputcsv($df, ['vkId']);
 
         while (true) {
-            $idsChunk = StatRepository::GetAllIds($type, $publicId, $offset);
+            try {
+                $idsChunk = StatRepository::GetAllIds($type, $publicId, $offset);
+            } catch (Exception $e) {
+                unlink($df);
+                Log::error($e->getMessage() . 'on ' . __FUNCTION__ . ' trace: ' . var_export($e->getTrace()[0], 1));
+                die();
+            }
             foreach ($idsChunk as $row) {
                 fputcsv($df, [$row->user_id]);
             }

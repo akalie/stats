@@ -180,6 +180,7 @@ class DaemonsController extends BaseController {
      * контроллер проверяет csv, если нет и очередь завершена - создает
      */
     public function CheckCSV() {
+        set_time_limit(1000);
         $queues = QueueRepository::getFinishedQueues();
         foreach($queues as $queue) {
             echo $queue->id . '<br>';
