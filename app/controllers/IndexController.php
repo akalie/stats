@@ -48,9 +48,9 @@ class IndexController extends BaseController {
                 $albumLikesPath     = FileHelper::getCsvPath($queue->public_id, StatRepository::ALBUM_LIKES);
                 $albumRepostsPath   = FileHelper::getCsvPath($queue->public_id, StatRepository::ALBUM_REPOSTS);
                 $boardReplsPath     = FileHelper::getCsvPath($queue->public_id, StatRepository::BOARD_REPLS);
-
+                $pulicName          = isset($publicInfoById[$queue->public_id]->name) ? $publicInfoById[$queue->public_id]->name : $queue->public_id;
                 $queuesInfo[$queue->public_id] = [
-                    'title'         =>  $publicInfoById[$queue->public_id]->name,
+                    'title'         =>  $pulicName,
                     'postLikes'     =>  is_file($postLikesPath) ? basename($postLikesPath) : null,
                     'postReposts'   =>  is_file($postRepostsPath) ? basename($postRepostsPath) : null,
                     'boardRepls'    =>  is_file($boardReplsPath) ? basename($boardReplsPath) : null,
@@ -100,27 +100,31 @@ class IndexController extends BaseController {
      * @return $this|\Illuminate\View\View
      */
     public function postForm() {
+        $errorMsg   = null;
         $label      = Input::get('label');
         $postIds    = Input::get('postIds');
-        $errorMsg   = null;
+        $file       = Input::file('f');
+        
+        if (!empty($file) && $file->isValid()) {
+            $postIds = file_get_contents($file->getRealPath());
+        }
+
         if (!$label) {
             $label = (new \DateTime())->format('H:i_d-m-Y');
         }
         if ($postIds) {
             $postIds = explode(',', $postIds);
-
             $postIds = preg_grep('/-?\d+_\d+/', $postIds);
 
-            if (empty($postIds) || count($postIds) > 15) {
+            if (empty($postIds) || count($postIds) > 100) {
                 $errorMsg = '<a href="http://youtu.be/OLmKm7fYk7c?t=4m46s" target="_blank">Неет</a>';
             } else {
+                print_r($postIds);
             }
         }
         return View::make('statPost')
             ->with('errorMsg', $errorMsg);
     }
-
-
 
     /**
      * возвращает id паблика по введенному url, shortname, id ...

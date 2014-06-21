@@ -21,7 +21,7 @@
         public static function api_request( $method, $request_params )
         {
             $url = VK_API_URL . $method;
-//            echo $url . '?' . http_build_query($request_params) .'<br>';
+            echo $url . '?' . http_build_query($request_params) .'<br>';
             $a = VkHelper::qurl_request( $url, $request_params );
             $res = json_decode(  $a, true );
 
@@ -50,7 +50,8 @@
             curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
             curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, 0);
             curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, 0);
-            curl_setopt($ch, CURLOPT_TIMEOUT , 180 );
+            curl_setopt($ch, CURLOPT_TIMEOUT, 15 );
+            curl_setopt($ch, CURLOPT_IPRESOLVE, CURL_IPRESOLVE_V4);
 
             if (is_array( $headers )) { // если заданы какие-то заголовки для браузера
                 curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
