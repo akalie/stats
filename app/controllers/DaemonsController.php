@@ -52,8 +52,6 @@ class DaemonsController extends BaseController {
         if ($wallPosts['isLast'] ) {
             //finished
             QueueRepository::updateQueueStatus($queue->id, 2);
-            FileHelper::saveToCSV($queue->public_id, StatRepository::POST_LIKES);
-            FileHelper::saveToCSV($queue->public_id, StatRepository::POST_REPOSTS);
         } else {
             QueueRepository::updateProcessed($queue->id, ++$page . '_' . $currentPostId);
         }
@@ -101,7 +99,6 @@ class DaemonsController extends BaseController {
         }
         if (count($boards->items) < 100) {
             QueueRepository::updateQueueStatus($queue->id, 2);
-            FileHelper::saveToCSV($queue->public_id, StatRepository::BOARD_REPLS);
             unset($allIds);
         }
         QueueRepository::unlockQueue($queue->id);
@@ -134,8 +131,6 @@ class DaemonsController extends BaseController {
                 echo 'фотки закончились/их нету ' . var_export($queue, 1). PHP_EOL;
                 QueueRepository::updateQueueStatus($queue->id, 2);
                 QueueRepository::unlockQueue($queue->id);
-                FileHelper::saveToCSV($queue->public_id, StatRepository::ALBUM_LIKES);
-                FileHelper::saveToCSV($queue->public_id, StatRepository::ALBUM_REPOSTS);
                 die();
             }
             $albumId = $page = $finished = 0;
@@ -195,7 +190,15 @@ class DaemonsController extends BaseController {
                     die();
                 }
             } elseif ($queue->type == QueueRepository::QT_ALBUMS) {
-                continue;
+                if (!file_exists(FileHelper::getCsvPath($queue->public_id, StatRepository::ALBUM_REPOSTS))) {
+                    FileHelper::saveToCSV($queue->public_id, StatRepository::ALBUM_REPOSTS);
+                    die();
+                }
+
+                if (!file_exists(FileHelper::getCsvPath($queue->public_id, StatRepository::ALBUM_LIKES))) {
+                    FileHelper::saveToCSV($queue->public_id, StatRepository::ALBUM_LIKES);
+                    die();
+                }
             } elseif ($queue->type == QueueRepository::QT_BOARDS) {
                 if (!file_exists(FileHelper::getCsvPath($queue->public_id, StatRepository::BOARD_REPLS))) {
                     FileHelper::saveToCSV($queue->public_id, StatRepository::BOARD_REPLS);
