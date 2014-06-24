@@ -1,8 +1,5 @@
 <?php
 /**
- * $from string
- * $to string
- * $idString string
  * $queuesInfo array
  */
 
@@ -35,6 +32,32 @@
         <input class="btn btn-large btn-primary" type="submit" value="Добавить посты для парса" >
     </form>
 
+    <br>
+    <br>
+    <?php if ( !is_null($queuesInfo)) {  ?>
+        <table class="table table-hover">
+            <thead>
+            <tr>
+                <th>Задача</th>
+                <th>Лайки постов</th>
+                <th>Репосты постов</th>
+                <th>Все</th>
+                <th></th>
+            </tr>
+            </thead>
+            <tbody>
+            <?php  foreach( $queuesInfo as $queue) { ?>
+                <tr>
+                    <td><?= $queue['label'] ?></td>
+                    <td><?= $queue['postLikes'] ? link_to('download/' . $queue['postLikes'], 'скачать') : 'В процессе' ?></td>
+                    <td><?= $queue['postReposts'] ? link_to('download/' . $queue['postReposts'], 'скачать') : 'В процессе' ?></td>
+                    <td><?= /*todo $queue['all'] ? link_to('download/' . $queue['all'], 'скачать') :*/ 'В процессе' ?></td>
+                    <td><?= link_to('deleteQueueEx/' . $queue['queueId'], 'удалить') ?></td>
+                </tr>
+            <?php } ?>
+            </tbody>
+        </table>
+    <?php } ?>
 
 </div>
 </body>

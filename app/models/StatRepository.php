@@ -11,13 +11,14 @@ class StatRepository  {
         POST_REPOSTS    = 'post_reposts',  // суффикс для таблицы с id репостнувших посты
         ALBUM_LIKES     = 'album_likes',   // суффикс для таблицы с id лайкнувших фото
         ALBUM_REPOSTS   = 'album_reposts', // суффикс для таблицы с id репостнувших фото
-        BOARD_REPLS     = 'board_repls';   // суффикс для таблицы с id отписавшихся в борде
+        BOARD_REPLS     = 'board_repls'   // суффикс для таблицы с id отписавшихся в борде
+        ;
 
     const
         MAX_IDS_IN_CHUNK = 10000; // максимальное количество id, возвращаемых за раз из базы
 
     /**
-     * создает таблицу под новый паблик
+     * Создает таблицы под новый паблик
      *
      * @param int $publicId id паблика/группы
      */
@@ -43,6 +44,23 @@ class StatRepository  {
     }
 
     /**
+     * Создает таблицы под новый набор постов
+     *
+     * @param  string $label лейбл для набора постов
+     */
+    public static function createTablesForExactPosts($label) {
+        $newTableName = self::STAT_TABLE_PUBLIC_PREFIX . $label;
+        if (!Schema::hasTable($newTableName . '_post_likes')) {
+            Schema::create($newTableName . '_post_likes', function($table) {
+                $table->integer('user_id')->index();
+            });
+            Schema::create($newTableName . '_post_reposts', function($table) {
+                $table->integer('user_id')->index();
+            });
+        }
+    }
+
+    /**
      * Сохраняет пачку юзерских id в соотв. таблице
      *
      * @param string $type тип статистики (лайки/репосты фоток/постов или обсуждения)
@@ -62,7 +80,7 @@ class StatRepository  {
     }
 
     /**
-     * возвращает страницу id
+     * Возвращает страницу id
      *
      * @param $type
      * @param $publicId
@@ -75,7 +93,7 @@ class StatRepository  {
     }
 
     /**
-     * удаляет все таблицы этого паблика
+     * Удаляет все таблицы этого паблика
      *
      * @param $publicId
      */

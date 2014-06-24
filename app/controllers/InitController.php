@@ -26,6 +26,13 @@ class InitController extends BaseController {
             $table->dateTime('created_at');
         });
 
+        /** таблица с id постов для парса */
+        Schema::create('post_ids', function($table) {
+            $table->increments('id');
+            $table->string('label');
+            $table->string('posts');
+        });
+
     }
 
 

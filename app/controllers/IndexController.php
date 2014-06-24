@@ -3,6 +3,7 @@
 class IndexController extends BaseController {
 
 	public function showIndex() {
+
 	}
 
     /**
@@ -104,25 +105,50 @@ class IndexController extends BaseController {
         $label      = Input::get('label');
         $postIds    = Input::get('postIds');
         $file       = Input::file('f');
-        
+
         if (!empty($file) && $file->isValid()) {
             $postIds = file_get_contents($file->getRealPath());
         }
 
         if (!$label) {
-            $label = (new \DateTime())->format('H:i_d-m-Y');
+            $label = (new \DateTime())->format('h-i_d-m-Y');
         }
+
         if ($postIds) {
             $postIds = explode(',', $postIds);
             $postIds = preg_grep('/-?\d+_\d+/', $postIds);
 
-            if (empty($postIds) || count($postIds) > 100) {
+            if (empty($postIds) || count($postIds) > 1000) {
                 $errorMsg = '<a href="http://youtu.be/OLmKm7fYk7c?t=4m46s" target="_blank">Неет</a>';
             } else {
-                print_r($postIds);
+                $postRawId = PostRawsRepository::createNewPostRaw($label, implode(',', $postIds));
+                if (QueueRepository::createNewExactPostsQueues($label, $postRawId)) {
+                    StatRepository::createTablesForExactPosts($label);
+                } else {
+                    $errorMsg = 'Уже есть в системе';
+                }
             }
         }
+
+        $queues = QueueRepository::getAllQueues(QueueRepository::QT_EXACT_POSTS);
+        foreach($queues as $queue) {
+
+            $postLikesPath      = FileHelper::getCsvPath($queue->public_id, StatRepository::POST_LIKES);
+            $postRepostsPath    = FileHelper::getCsvPath($queue->public_id, StatRepository::POST_REPOSTS);
+            // todo
+//            $allPath            = FileHelper::getCsvPath($queue->public_id, StatRepository::ALL);
+
+            $queuesInfo[$queue->public_id] = [
+                'label'         =>  $queue->public_id,
+                'postLikes'     =>  is_file($postLikesPath) ? basename($postLikesPath) : null,
+                'postReposts'   =>  is_file($postRepostsPath) ? basename($postRepostsPath) : null,
+//                'boardRepls'    =>  is_file($allPath) ? basename($allPath) : null,
+                'queueId'       =>  $queue->id
+            ];
+
+        }
         return View::make('statPost')
+            ->with('queuesInfo', $queuesInfo)
             ->with('errorMsg', $errorMsg);
     }
 

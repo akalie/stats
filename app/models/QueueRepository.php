@@ -5,10 +5,11 @@
  */
 
 class QueueRepository {
-    const   QT_PUBLIC = 1,    //общая очередь для паблика
-            QT_POSTS  = 2,    //очередь обработки постов  паблика
-            QT_ALBUMS = 3,    //очередь обработки альбомов для паблика
-            QT_BOARDS = 4     //очередь обработки обсуждений для паблика
+    const   QT_PUBLIC       = 1,  // общая очередь для паблика
+            QT_POSTS        = 2,  // очередь обработки постов  паблика
+            QT_ALBUMS       = 3,  // очередь обработки альбомов для паблика
+            QT_BOARDS       = 4,  // очередь обработки обсуждений для паблика
+            QT_EXACT_POSTS  = 5   // очередь обработки отдельных постов
     ;
 
     /** создает очереди для нового паблика
@@ -46,8 +47,37 @@ class QueueRepository {
         return true;
     }
 
-    /** есть ли очередь для этого паблика
-     * @param int $publicId
+    /** Создает очереди для нового набора постов
+     * @param string $label лейбл для набора постов
+     * @param int $postRawId id строки с постами
+     * @return bool
+     */
+    public static function createNewExactPostsQueues($label, $postRawId) {
+        if (self::isQueueAlreadyExists($label)) {
+            return false;
+        }
+        $now = new DateTime();
+        $commonParams = [
+            'percent_done'  =>  0,
+            'status_id'     =>  1,
+            'created_at'    =>  $now->format('r'),
+            'public_id'     =>  $label
+        ];
+        $parentQueueId = DB::table('queues')->insertGetId(
+            ['type'  =>  self::QT_EXACT_POSTS] + $commonParams
+        );
+
+        $commonParams['parent_queue_id'] = $parentQueueId;
+
+        DB::table('queues')->insert(
+            ['type'  =>  self::QT_POSTS, 'last_processed_id' => $postRawId] + $commonParams
+        );
+
+        return true;
+    }
+
+    /** есть ли очередь для этого паблика/лейбла
+     * @param string $publicId
      * @return bool
      */
     public static function isQueueAlreadyExists($publicId) {
@@ -118,16 +148,26 @@ class QueueRepository {
                         ->update(['status_id' => $status]);
     }
 
-    public static function getAllQueues() {
-        return DB::table('queues')->where('type', self::QT_PUBLIC)->get();
+    /** получить все очереди (по умолчанию - все "родительские" )
+     * @param int $type
+     * @return array|static[]
+     */
+    public static function getAllQueues($type = self::QT_PUBLIC) {
+        return DB::table('queues')->where('type', $type)->get();
     }
 
+    /** возвращает все готовые очереди
+     * @return array|static[]
+     */
     public static function getFinishedQueues() {
         return DB::table('queues')->where('status_id', 2)
             ->where('type', '!=', self::QT_PUBLIC)
             ->get();
     }
 
+    /** удаляет все очереди для паблика (родительскую и подчиненные)
+     * @param $queueId
+     */
     public static function deleteQueue($queueId) {
         $queue = DB::table('queues')->find($queueId);
         if ($queue) {

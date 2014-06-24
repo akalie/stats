@@ -58,6 +58,17 @@ Route::get('/deleteQueue/{queueId}', function($queueId = -1) {
 });
 
 /**
+ * удаление очереди постов
+ */
+Route::get('/deleteQueueEx/{queueId}', function($queueId = -1) {
+    if ($queueId != -1 && is_numeric($queueId)) {
+        QueueRepository::deleteQueue($queueId);
+    }
+
+    return Redirect::to('/post');
+});
+
+/**
  * демоны
  */
 Route::get('/daemons/boards-parser', ['uses' => 'DaemonsController@ParseBoardChunk']);
